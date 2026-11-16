@@ -39,8 +39,8 @@ Chinedu claims on his profile that he is an expert in Optical Time Domain Reflec
 Through **SkillVerify**, Chinedu registers for the "Certified Fiber Optic Splicing & OTDR Lab Assessment".
 1. He first takes a 30-minute timed proctored theory diagnostic online to test laser safety, decibel loss calculations, and standard fiber color codes.
 2. Next, he attends a physical hands-on session at a DBI Innovation Center lab in Abuja. A certified DBI Master Evaluator, Engr. Fatima, oversees his live splice.
-3. Engr. Fatima opens the **DBI Evaluator Portal** on her tablet, grades Chinedu’s splice loss reading (0.02 dB - within acceptable limits), inspects his fiber cleave angle, and signs off on the practical rubrics with an evaluator signature.
-4. Chinedu's Digital Skills Passport immediately updates with an authenticated **4.6/5 Star Verified Telecom Skill Rating** and an official DBI digital credential badge. MainOne recruiters can now shortlist Chinedu with complete confidence.
+3. Engr. Fatima opens the **DBI Evaluator Portal** on her tablet, records Chinedu’s measured splice loss (illustrative: 0.02 dB; pass/fail depends on the approved assessment rubric), inspects his fiber cleave angle, and signs off on the practical rubrics with an evaluator signature or equivalent authenticated sign-off and independent audit trace.
+4. After evaluator sign-off, safety-gate clearance and DBI credential issuance, Chinedu's Passport displays an evidence-backed **4.6/5 Fibre Splicing rating** (illustrative) and its verification status. Recruiters can inspect the underlying scope, date and issuing authority; the badge is not a guarantee of future job performance.
 
 ---
 
@@ -87,7 +87,7 @@ It delivers:
     - Implement session heartbeat, auto-submit timeout handling, response persistence, and malpractice review flags.
     - Integration test suite for exam lifecycle and concurrency.
   - **Phase 3: Evaluator Rubrics, Endorsements & Score Ingestion to Passport (Weeks 5-6)**
-    - Build evaluator scoring endpoints, safety-critical sign-off checks, and RBAC guards (`DBI_ADMIN`, `REVIEWER`).
+    - Build evaluator scoring endpoints, safety-critical sign-off checks, and RBAC guards using a scoped DBI evaluator permission/assignment; generic organization `REVIEWER` is insufficient to grade DBI assessments.
     - Update `PassportModule` skill proficiency ratings (`1.0`–`5.0`) and evidence confidence upon verified completion.
 
 ---
@@ -103,7 +103,7 @@ It delivers:
 - **Sub Features**
   - Browser fullscreen and focus-loss warning alerts (logged for human review, never automatic opaque disqualification).
   - Auto-save indicator ensuring answers are preserved across network interruptions.
-  - Instant badge animation upon achieving passing verified status.
+  - Badge issuance feedback only after signed assessment approval; a theory pass alone never awards a verified practical credential.
 
 - **Pages**
   - `[ ]` `/talent/assessments` - Assessment catalog, introductory free assessments, and active lab bookings.
@@ -128,3 +128,34 @@ It delivers:
   - Added multi-modal assessment coverage (questions, work samples, simulations, practical labs, authorized endorsements) and safety-critical field checkpoints.
   - Enforced Section 6 rating rules: skill-specific stars (`1.0`–`5.0`), evidence confidence states (`VERIFIED`, `PROVISIONAL`, `INSUFFICIENT_EVIDENCE`), prompting assessments when evidence is missing rather than assigning low ratings, and human-reviewed malpractice/appeal decisions.
 
+# Plan review and implementation hardening — 2026-11-16
+
+> **Review-only update.** `DRAFT` and all unchecked items are unchanged. Numeric scenario ratings and the example splice reading are fictional planning examples, **not** pre-approved safety thresholds or scientific guarantees.
+
+## Assessment state, authorization and evidence ownership
+- Use explicit versioned states: assessment definition `DRAFT -> REVIEWED -> PUBLISHED -> RETIRED`; booking `REQUESTED -> CONFIRMED -> ATTENDED | MISSED | CANCELLED`; session `CREATED -> IN_PROGRESS -> SUBMITTED -> AUTO_SCORED -> AWAITING_REVIEW -> FINALIZED | VOIDED`; appeals `OPEN -> UNDER_REVIEW -> UPHELD | CHANGED | REJECTED`. Every transition is guarded and audited; do not issue credentials on `SUBMITTED` or `AUTO_SCORED` alone.
+- Introduce a **DBI-assigned evaluator capability** (`DBI_EVALUATOR` permission or per-assessment scoped grant) separate from a workspace `REVIEWER` role. Prevent graders from grading their own assessments or acting outside assigned venue/skill and record evaluator credential validity.
+- For safety-critical rubrics, a failed mandatory laser, height, electrical or similar safety checkpoint **blocks verified certification regardless of average score**. Store rubric version, equipment calibration/evidence reference, assessor assignment, candidate acknowledgement, timestamp, venue and reviewer sign-off. The actual threshold belongs to an approved DBI/sector specialist rubric, not scenario text.
+- Distinguish **assessment score** (per skill and rubric), **confidence** (strength of evidence), **proficiency** (normalized per skill only) and **issuance** (a separate issuer authorization). PLAN-0002 creates signed/verifiable issuer artifacts only after an authorized finalized event. Preserve unsuccessful attempts with appropriate retention rather than overwriting history.
+
+## Threat model and candidate fairness
+- Save answers by stable response IDs with idempotent upserts and server-based deadlines; client timers are display only. Maintain reconnect/resume behavior and explicit offline limits, without promising a fully offline secure exam.
+- Question bank: versioned pools, reviewer approval, minimum coverage and controlled random seeds; return no answer keys before submission; keep evaluation explanations separate from confidential item contents.
+- Browser focus-loss/tab-switch data are **weak signals**, never automatic proof of cheating. Publish a candidate privacy notice, minimize collection, maintain human-review evidence and support fair appeals/accommodations; do not require invasive biometric or webcam monitoring by default.
+- Evaluator sign-off must be authenticated and bound to an immutable result digest; grade changes require a revision event and an independent authorized reviewer for high-impact decisions. Appeals cannot be reviewed solely by the original grader.
+
+## Missing workflow contracts (proposed)
+- `[ ]` `GET /api/v1/assessments/:id/slots` — physical lab slot availability and capacity (backed by DBI-operated venue/calendar data).
+- `[ ]` `POST /api/v1/assessments/:id/bookings` — create a capacity-checked booking with idempotency key.
+- `[ ]` `GET /api/v1/talent/assessment-bookings` — candidate booking and attendance history.
+- `[ ]` `POST /api/v1/evaluator/sessions/:sessionId/finalize` — final authenticated safety and rubric sign-off; enforce evaluator scope and segregation of duties.
+- `[ ]` `POST /api/v1/assessments/sessions/:sessionId/appeals` — canonical appeal route; treat original `/assessments/:sessionId/appeal` as a contract discrepancy to resolve **before** frontend integration, not an already deployed alias.
+- `[ ]` `GET /api/v1/assessments/sessions/:sessionId/audit` — appropriate candidate/admin redacted history of status, review, appeal and finalization events.
+
+## Acceptance tests and release gates
+- `[ ]` Retrying answers/submission/booking after network interruption never doubles a session, booking, score event or credential.
+- `[ ]` Missing evidence yields a prompt for assessment and no unjustified low skill rating. A safety-gate failure never produces a verified badge even when non-critical criteria score highly.
+- `[ ]` Unassigned assessor, workspace reviewer, candidate, other tenant and expired evaluator credentials cannot grade or finalize sessions.
+- `[ ]` Spoofed client timestamps, score payloads, focus switches, expired sessions and duplicate grade events do not bypass server scoring or appeal controls.
+- `[ ]` All finalized signed outcomes are carried into PLAN-0002 with provenance and revocation support; PLAN-0004 reacts to the updated evidence instead of trusting client-provided scores.
+- Release physical lab grading before expanding to simulated practical certifications; live safe operations require DBI evaluator and safety-policy approval.

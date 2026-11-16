@@ -38,7 +38,7 @@ Horizon Telecoms is a national fiber infrastructure provider in Nigeria looking 
 
 At the same time, Babatunde, a prospective network technician in Ibadan, visits the platform. Rather than facing a long, bureaucratic CV form, his onboarding begins with *"What would you like to achieve?"*—letting him pick his primary goal (*Find a job*, *Grow income from existing skills*, *Reach a dream occupation*, or *Build expert reputation*) and complete initial setup in 3–5 minutes on a low-data mobile connection with save-and-resume support. If he tried the public Career Readiness Explorer before registering (*"Value first, registration second"*), signing up automatically saves his provisional skills-gap snapshot. He also gets multi-factor authentication (MFA) to safeguard his record and transparent Nigeria Data Protection Act (NDPA) consent and frequency controls over service alerts versus optional marketing.
 
-Meanwhile, a DBI Operations Administrator needs a secure back-office queue (protected by privileged-account MFA) where they can inspect Horizon Telecoms' submitted CAC documents, conduct institutional due diligence, and approve or reject their verification status with one click, ensuring no fraudulent businesses can exploit talent data.
+Meanwhile, a DBI Operations Administrator needs a secure back-office queue (protected by privileged-account MFA) where they can inspect Horizon Telecoms' submitted CAC documents, conduct institutional due diligence, and approve or reject their verification status with one click, reducing fraudulent access risk through controlled approval and tenant-scoped authorization (verification alone cannot eliminate fraud).
 
 **How This Plan Fixes It:**
 1. Delivers a clean, multi-tenant authentication engine in `/backend` and `/frontend` supporting both individual **Talent** accounts and multi-seat **Organization** accounts (Employers/Telecom Operators, Government Bodies, Donors/NGOs, and Training Partners).
@@ -68,7 +68,7 @@ It establishes:
 - **Features**
   - **Modular Architecture Scaffolding**: NestJS application structure with isolated domain modules: `AuthModule`, `UsersModule`, `OrganizationsModule`, `VerificationModule`, `ConsentModule`, `CommunicationModule`, and `AuditModule`.
   - **Authentication & Security Engine**: JWT access/refresh token rotation, Argon2id password hashing, email OTP-based Multi-Factor Authentication (MFA), privileged-account MFA enforcement, and rate limiting.
-  - **Goal-First Talent Onboarding & Explorer State Hydration (Strategy Sections 7 & 10)**: Captures "What would you like to achieve?" goals (`FIND_JOB`, `GROW_INCOME`, `REACH_DREAM_OCCUPATION`, `BUILD_EXPERT_REPUTATION`), audience persona (`EARLY_CAREER`, `EXPERIENCED_TECHNICIAN`, `SENIOR_EXPERT`, `FREELANCER`), target occupation, save-and-resume step state, and attaches pre-registration Career Readiness Explorer snapshots upon account creation.
+  - **Goal-First Talent Onboarding & Explorer State Hydration (Strategy Sections 7 & 10)**: Captures "What would you like to achieve?" goals (`FIND_JOB`, `GROW_INCOME`, `REACH_DREAM_OCCUPATION`, `BUILD_EXPERT_REPUTATION`), audience persona (`EARLY_CAREER`, `EXPERIENCED_TECHNICIAN`, `SENIOR_EXPERT`, `FREELANCER`), target occupation, save-and-resume step state, and accepts a short-lived, single-use pre-registration Career Readiness Explorer handoff token after identity binding and user confirmation; PLAN-0002 owns the Explorer evaluation itself.
   - **Organization Management & Multi-Stakeholder Multi-Tenancy (Strategy Sections 3 & 8)**: Organization profile creation supporting multiple institutional types (`EMPLOYER`, `TELECOM_OPERATOR`, `GOVERNMENT`, `DONOR_NGO`, `TRAINING_PARTNER`), CAC registration numbers, company size, telecom/digital sub-sector categorization, workspace settings, and team seat provisioning.
   - **Role-Based Access Control (RBAC)**: Fine-grained platform and workspace permissions (`SUPER_ADMIN`, `DBI_ADMIN`, `OWNER`, `ADMIN`, `RECRUITER`, `REVIEWER`, `TALENT`).
   - **Organization Verification Subsystem**: Multi-step verification lifecycle (`UNVERIFIED`, `PENDING_REVIEW`, `VERIFIED`, `REJECTED`), controlled document upload integration, and administrative approval/rejection actions with human review reasons.
@@ -76,7 +76,7 @@ It establishes:
 
 - **Endpoints**
   - `[x]` `GET /api/v1/health` & `GET /api/v1/health/ready` - Process liveness and PostgreSQL readiness checks.
-  - `[x]` `POST /api/v1/auth/signup` - Register user account (`TALENT` or `ORGANIZATION_REPRESENTATIVE`) with minimal friction, mandatory NDPA consent recording (`TERMS`, `PRIVACY`), and optional `MARKETING` opt-in.
+  - `[x]` `POST /api/v1/auth/signup` - Register user account (`TALENT` or `ORGANIZATION_REPRESENTATIVE`) with minimal friction, versioned terms acceptance and privacy notice acknowledgement (`TERMS`, `PRIVACY` records), with separate optional `MARKETING` opt-in; legal-basis mapping requires validation before release.
   - `[x]` `POST /api/v1/auth/verify-email` - Verify email address using one-time verification token.
   - `[x]` `POST /api/v1/auth/signin` - Authenticate user, issue access and refresh tokens (or MFA challenge token when MFA is enabled).
   - `[x]` `POST /api/v1/auth/refresh` - Rotate and issue new access token.
@@ -112,7 +112,7 @@ It establishes:
   - **Phase 3: User Onboarding State, Communication Preferences, Verification Engine & Admin Queue (Weeks 5-6) — Pending**
     - Implement `UsersModule` (`/users/me` and `/users/me/communication-preferences`) for profile inspection, goal-first talent onboarding state (save-and-resume + Explorer snapshot attachment), consent history, and channel/frequency preferences.
     - Implement controlled document upload handlers and organization verification state machine (`UNVERIFIED` -> `PENDING_REVIEW` -> `VERIFIED` / `REJECTED`).
-    - Build DBI administrative review endpoints (`GET /api/v1/admin/organizations/verifications`, `PATCH /api/v1/admin/organizations/:organizationId/verification/decide`) with platform-level admin role enforcement (`SUPER_ADMIN`, `DBI_ADMIN`) and privileged MFA checks.
+    - Build DBI administrative review endpoints (`GET /api/v1/admin/organizations/verifications`, `PATCH /api/v1/admin/organizations/:organizationId/verification/decide`) with platform-level admin role enforcement (`SUPER_ADMIN`, `DBI_ADMIN`) and privileged MFA checks; workspace `ADMIN` and `REVIEWER` are never platform administrators.
     - Implement `audit_logs` schema and audit logging recording all administrative verification approvals, rejections, consent changes, and sensitive security events.
 
 ---
@@ -137,7 +137,7 @@ It establishes:
   - Save-and-resume onboarding state and bandwidth-conscious, low-data mobile-first layout for talent; desktop-optimized layout for institutional admins.
   - WCAG-oriented color contrast, keyboard accessibility, and `prefers-reduced-motion` support.
   - Password strength meter and inline NDPA consent agreement modals separating service notifications from optional marketing.
-  - Document upload preview for CAC and institutional verification files.
+  - Document upload preview for CAC and institutional verification files, with private storage, type/size validation, malware-scanning workflow, and short-lived reviewer download URLs.
 
 - **Pages**
   - `[x]` `/` - Landing page with distinct "Join as Talent" and "Register Your Organization" CTA buttons and preview profiles.
@@ -195,3 +195,40 @@ It establishes:
   - **Next Execution Priorities to Complete `PLAN-0001`**:
     1. **Backend Phase 3**: Implement `UsersModule` (`/users/me`, `/users/me/communication-preferences` including goal-first onboarding state and frequency preferences), organization verification submission (`POST /organizations/:organizationId/verification/submit`), DBI admin verification review queue (`GET /admin/organizations/verifications`, `PATCH /admin/organizations/:organizationId/verification/decide`), and `audit_logs` persistence.
     2. **Frontend Phase 1–3**: Build shared UI primitives, authentication pages (`/auth/*`), 3–5 minute goal-first talent onboarding (`/onboarding/talent`), organization onboarding wizard (`/onboarding/organization`), workspace management views (`/organization/*`), NDPA consent dashboard (`/settings/privacy-consent`), and DBI admin queue (`/admin/verifications`), backed by Playwright E2E tests.
+
+# Plan review and implementation hardening — 2026-11-16
+
+> **Review-only update.** The completed checkboxes and 2026-11-02/04/16 implementation notes above are preserved from the submitted plan; the live repository and product strategy source file were **not provided** for independent re-audit. The `# Status` value `IN_PROGRESS` means execution is underway; `# Approval` remains `DRAFT` and is a *separate* approval field, not proof of approval.
+
+## Ownership, critical path and shared contracts
+- PLAN-0001 owns identity, refresh sessions, privileged-account MFA, profile/onboarding core fields, institution verification, tenant permission evaluation, notices/preferences, rights-request intake, and append-only administrative audit events. PLAN-0002 owns the public Explorer calculation, initial talent-profile enrichment, taxonomy and Passport. Agree on the handoff API **before** building overlapping onboarding screens.
+- `users.id` is the identity source of truth; `organizations.id` identifies tenant/workspace; every institution-scoped query must independently authorize `(actor_id, organization_id, capability)` and must not trust an organization ID sent by a browser. Define platform roles (`SUPER_ADMIN`, `DBI_ADMIN`) separately from workspace roles (`OWNER`, `ADMIN`, `RECRUITER`, `REVIEWER`) and the talent account type; forbid self-elevation and cross-tenant record access.
+- Organization state machine: `UNVERIFIED -> PENDING_REVIEW -> VERIFIED | REJECTED`; rejected applications may be corrected and re-submitted with a **new review event**, never by mutating historical decisions. For non-CAC government/NGO/training institutions, support a configurable alternative-document checklist and reviewer justification rather than requiring a CAC number universally.
+- Explorer handoff: PLAN-0002 issues an opaque, expiring, single-use token linked to a minimal provisional snapshot. PLAN-0001 redeems it only after authentication, validates purpose and ownership, attaches it idempotently, and never silently overwrites a user-confirmed field. Invalid/expired token cannot block normal signup.
+- Identity sessions: rotate refresh tokens atomically, detect replay and revoke the token family, revoke on password reset/MFA credential change, throttle OTP attempts by account and network, and record security events without logging token plaintext or OTP contents. Current email OTP is the documented baseline; evaluate phishing-resistant MFA (passkeys/WebAuthn or TOTP) separately for privileged roles before production.
+
+## Privacy, communications and institution safety decisions
+- Distinguish (a) terms acceptance, (b) notice acknowledgement, (c) lawful-basis/purpose records, and (d) affirmative optional marketing consent. Do not make optional marketing a registration condition. Service-critical messages are not automatically marketing; user-requested vacancy digests are preference-controlled. Provide defaults, unsubscribe/suppression behavior, and contact-channel verification before WhatsApp/SMS delivery.
+- Define rights-request intake and fulfillment for access, correction, export, withdrawal where applicable, and deletion subject to lawful retention. Capture request owner, legal basis, deadline, outcome and audit reference; run a DPIA and obtain legal/DBI privacy review before exposing candidate discovery or external data sharing.
+- Organization verification evidence is private and encrypted at rest; use allowlisted MIME types, size caps, malware checks, access-controlled object references and short-lived review URLs. Retention/deletion and reviewer separation of duties must be specified. `VERIFIED` does not itself grant access to private profiles without PLAN-0002 visibility/PLAN-0005 recruitment permissions.
+
+## Required contract additions (proposed; not marked implemented)
+- `[ ]` `GET /api/v1/users/me/consents` — display recorded terms/notice versions and voluntary marketing consent history.
+- `[ ]` `POST /api/v1/users/me/data-requests` — authenticated access/correction/export/deletion intake with status tracking.
+- `[ ]` `GET /api/v1/organizations/:organizationId/verification` — owner/admin read of current request, evidence manifest and reason codes (no raw public storage URL).
+- `[ ]` `GET /api/v1/admin/audit-events` — platform-admin-filtered audit search; sensitive fields redacted.
+- `[ ]` `PATCH /api/v1/organizations/:organizationId/members/:userId/role` — only if UI role dropdown is retained; otherwise make role display read-only to avoid advertising a missing capability.
+- `[ ]` `GET /api/v1/users/me/onboarding` or existing `GET /users/me` **must** return `step`, `version`, `goal`, `persona`, `saved_at`, and Explorer handoff status; `PATCH /users/me` requires optimistic concurrency/idempotency for resume across devices.
+
+## Definition of done and test gates
+- `[ ]` Anonymous, talent, unverified organization, verified organization, workspace `OWNER/ADMIN/RECRUITER/REVIEWER`, DBI admin and super-admin can access **only** their approved routes and tenant records; test both REST and direct object-ID manipulation.
+- `[ ]` Invitation token cannot be reused, accepted from an unintended email, or used to elevate the invitee above the inviter's grantable role; last `OWNER` cannot be removed accidentally.
+- `[ ]` Organization evidence upload/review/rejection/resubmission produces immutable actor/time/reason events and cannot expose private documents through public asset/CDN routes.
+- `[ ]` Signup -> email verification -> MFA -> refresh -> goal-first resume -> optional Explorer handoff and organization verification run in Playwright mobile/desktop suites, including failed and interrupted network requests.
+- `[ ]` Legal/privacy review signs off the actual purposes, lawful bases, retention schedule, processor list, and external channels. Do not label the application 'NDPA compliant' solely because a consent checkbox exists.
+- `[ ]` Sprint gate for **23 November 2026**: evaluate only the acceptance criteria above and the remaining originally listed PLAN-0001 tasks; record any unmet work as an explicit follow-on, never silently mark a checklist complete.
+
+## Sequencing and open decisions
+1. P0: finish `UsersModule` + tenant guard/audit contracts, then browser auth/onboarding; verification document handling can be parallel only after RBAC/security primitives stabilize.
+2. P0: agree on PLAN-0002 Explorer handoff shape (token TTL, redemption and owner binding) before touching both repos.
+3. P1: approve the exact administrative permission matrix, retention policy, DPO/privacy signoff owner and privileged MFA upgrade path. No approval is assumed in this document.

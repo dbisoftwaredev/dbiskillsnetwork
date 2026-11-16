@@ -46,7 +46,7 @@ Crucially, this intelligence must respect citizen privacy under the Nigeria Data
 2. An interactive 3D/2D Nigerian geospatial map visualizes talent density across geo-political zones:
    - Green areas (e.g. Lagos, Abuja, Rivers) show high concentrations of RF and Cloud engineers.
    - Amber/Red areas (e.g. Taraba, Kebbi) highlight acute shortages in certified fiber technicians.
-3. The **WorkforceIQ Privacy Guard** enforces strict k-anonymity (suppressing any cohort with fewer than 10 individuals) to prevent re-identification.
+3. The **WorkforceIQ Privacy Guard** enforces strict k-anonymity (suppressing any cohort with fewer than 10 individuals) to reduce re-identification risk; additional composition, differencing, aggregation and disclosure controls are still required.
 4. Policymakers export aggregated, verifiable reports to allocate training subsidies directly where the deficit is greatest, and track real post-training employment conversion.
 
 ---
@@ -57,7 +57,7 @@ PLAN-0006 implements **WorkforceIQ**, the institutional, regulatory, and B2B lab
 
 It delivers:
 1. **Sectoral Workforce Atlas (Strategy Section 18)**: High-density interactive geographic heatmap displaying verified skills supply, training capacity, and regional talent distribution across Nigeria's 36 states, the FCT, and 6 geopolitical zones.
-2. **Privacy-Preserving Aggregator Engine (Strategy Section 17)**: Pre-computed statistical aggregates with dynamic k-anonymity suppression ($k \ge 10$ minimum cell threshold) and cross-slice suppression ensuring complete NDPA compliance and zero individual profiling exposure.
+2. **Privacy-Preserving Aggregator Engine (Strategy Section 17)**: Pre-computed statistical aggregates with dynamic k-anonymity suppression ($k \ge 10$ minimum cell threshold) and complementary suppression, query auditing and privacy risk assessment; a minimum k-threshold alone cannot establish NDPA compliance or rule out re-identification.
 3. **Macro Skills Gap & Industry Supply Index**: Tracks emerging demand trends across the 6 core telecom/ICT pathways (RF/RAN & 4G/5G, Fibre & Transmission, IP/NOC, Field Deployment & Power, Cybersecurity/Cloud, Network Automation & Applied AI) comparing employer vacancies to verified labor supply.
 4. **Government, Donor & DBI Operations Cockpits (Strategy Section 8)**:
    - **Government Cockpit**: Aggregate skills distribution maps, regional shortages, cohort outcomes, and privacy-safe exports.
@@ -71,7 +71,7 @@ It delivers:
 
 - **Features**
   - **Analytics Aggregation Pipeline**: Scheduled materialized rollups calculating verified vs. declared skill supply by state, geopolitical zone, occupation pathway, competency level, and evidence confidence.
-  - **NDPA k-Anonymity & Cross-Slice Suppression Engine (Strategy Section 17)**: Automatically suppresses or masks any query results or multi-dimensional slices where cell count is below the safety threshold ($k = 10$).
+  - **Privacy-Aware Aggregation & Cross-Slice Suppression Engine (Strategy Section 17)**: Suppresses any cell with fewer than 10 people as a minimum rule, then applies complementary suppression, query-history/differencing controls, geographic coarsening, disclosure reviews and rate limits; privacy risk remains context-dependent.
   - **Macro Skills Index & KPI Engine (Strategy Section 20)**: Computes national supply-versus-demand ratios, measured competency gains after interventions, shortlist yield, time-to-hire, placement conversion, and 30/90-day retention metrics.
   - **DBI Operations Governance API**: Back-office endpoints for managing taxonomy updates, credential audit trails, campaign performance, and institutional licensing contracts.
   - **B2B Licensed Partner API**: Scoped API key authentication, tiered rate-limiting, and auditable data access logs for licensed institutional clients.
@@ -83,7 +83,7 @@ It delivers:
   - `[ ]` `GET /api/v1/workforceiq/skill-shortages` - Sectoral deficit report comparing open employer vacancies against verified and near-ready candidate supply.
   - `[ ]` `GET /api/v1/workforceiq/training-outcomes` - Longitudinal training-to-employment ROI tracking competency gains and placement conversion rates by programme/cohort.
   - `[ ]` `GET /api/v1/admin/operations/cockpit` - DBI Operations Cockpit summary covering taxonomy health, assessment bank metrics, credential issuance audits, and active institutional contracts.
-  - `[ ]` `POST /api/v1/workforceiq/reports/export` - Generate privacy-safe institutional PDF/CSV labor market and donor milestone reports.
+  - `[ ]` `POST /api/v1/workforceiq/reports/export` - Generate disclosure-reviewed aggregate PDF/CSV labor market and donor milestone reports.
   - `[ ]` `GET /api/v1/b2b/v1/skills-index` - Dedicated authenticated B2B partner feed for licensed enterprise and government subscribers.
 
 - **Implement in Phases**
@@ -133,3 +133,33 @@ It delivers:
   - Added distinct coverage for the **Government Cockpit**, **Donor/NGO Cockpit**, and **DBI Operations Cockpit** (`/admin/operations`) as defined in Strategy Section 8.
   - Added the 8 strategic KPI dimensions from Strategy Section 20 (supply quality, verified capability, competency gains, shortlist yield/time-to-hire, placement outcomes, revenue quality, 30/90-day retention, and privacy-safe regional outcomes) and reinforced $k \ge 10$ cell and cross-slice suppression.
 
+# Plan review and implementation hardening — 2026-11-16
+
+> **Review-only update.** `DRAFT` and unchecked items are retained. Illustrative national requirements, budget amounts and map examples are not verified current government plans. `k >= 10` is a **minimum release policy**, not a universal guarantee against identification or proof of NDPA compliance.
+
+## Trusted aggregates, representativeness and privacy
+- This platform's registered/assessed users form an **observed DBI-network sample**, not a census of Nigeria's entire workforce. Label all supply data with coverage, time period, completeness, skill evidence tier and denominators. Do not equate 'no registered candidates' with zero real-world skilled workers. Demand is observed employer vacancies, not total national labour demand.
+- Define canonical denominators and metrics: `verified_skill_supply` = distinct eligible/consented persons with current non-revoked skill evidence during date window; `open_demand` = distinct currently valid vacancies with deduplicated skill requirements; `supply_to_demand` = supply / observed demand when denominator > 0; placement rate = confirmed hires / eligible cohort participants (with named exclusions); retention_30/90 = confirmed employed at day 30/90 / placements eligible for follow-up (include unknown rates). Version definitions and never overstate causality as 'training ROI' without comparison design.
+- Privacy pipeline: source allowlist -> pseudonymous identity deduplication -> minimum aggregation/coarsening -> min-cell threshold `k >= 10` -> complementary suppression -> repeated-query/differencing controls -> audience-specific access policy -> disclosure audit -> cached release table/export. Assess overlapping dimensions, totals and time windows; force larger bins when combination is unsafe.
+- Limit very fine geolocation (show state/zone by default, not home or live site locations), suppress low-population categories, avoid raw exact ages and sensitive combinations. Consider contribution clipping, noise or other statistical disclosure controls when repeated flexible queries are required; conduct documented DPIA/DBI privacy sign-off rather than claim a risk-free release.
+- Treat data-sharing rights separately: employers see only authorized applicants (PLAN-0005), government and donors primarily see approved **aggregate statistics**, and DBI internal operators have minimal purpose-based access; platform `DBI_ADMIN` does not imply universal authority to download personal records.
+
+## Licensed API and report security
+- Partner licenses bind verified institution ID, agreement/expiry, purpose, allowed dimensions, monthly query/export quota and per-scope rate limits. Store API key hashes, display secret once, rotate/revoke, require IP/security policies appropriate to risk, use TLS, log actor and query lineage, and disable expired accounts quickly.
+- Only serve materialized pre-approved aggregates or strictly bounded query shapes; do **not** expose arbitrary SQL, high-cardinality pivots or per-person filters. Suppressed cells must never be reconstructed by a combination of totals, export formats, filters, map legends or partner API endpoints. Query-history budget and partner-specific cached outputs must defend against differencing.
+- Each report should show dataset window, last refresh, unique-count basis, evidence tier definition, unknown/undercounted populations, privacy suppression note, method/version and export approver; suppress CSV formula injection and prevent download of unsanitized raw rows.
+
+## Proposed endpoints, quality checks and controls
+- `[ ]` `GET /api/v1/workforceiq/methodology` — published definitions, data coverage, update lag and benchmark/model versions.
+- `[ ]` `GET /api/v1/workforceiq/data-quality` — aggregated missingness, dedupe rate, unmatched regions and stale sources with approved disclosure checks.
+- `[ ]` `POST /api/v1/admin/workforceiq/release-review` — DBI privacy/data steward review, approval and versioning of a published aggregate snapshot.
+- `[ ]` `POST /api/v1/admin/b2b/api-keys/:id/revoke` — scoped key revocation with audit record and immediate access removal.
+- `[ ]` `GET /api/v1/workforceiq/reports/:id/status` — report generation status without exposing internal file paths or identifying rows.
+
+## Acceptance criteria and implementation order
+- `[ ]` A single cell below ten, a difference of two allowed queries, a total-minus-subgroups calculation, a sparse map layer and a report download cannot disclose a suppressed count or person.
+- `[ ]` A partner API key from organization A cannot query organization B's licensed data or fetch internal audit records; expired/revoked keys stop immediately.
+- `[ ]` Geographic and longitudinal counts deduplicate people by consistent documented windows, do not double-count multi-skilled users in the overall headcount and flag incomparable categories.
+- `[ ]` Dashboards communicate uncertainty, suppressed groups, sample bias, lag and missing outcomes; use accessible map alternatives and avoid red/green alone as the meaning carrier.
+- `[ ]` Downstream PLAN-0001–0005 event definitions and consent policy have been signed off by data stewards before public/partner release.
+- Roll out in this order: internal aggregate quality dashboard -> governed state/zone atlas -> authorized institutional reporting -> licensed partner API, **after** privacy impact and contract review.

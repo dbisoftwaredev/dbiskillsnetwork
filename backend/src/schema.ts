@@ -1,6 +1,7 @@
 import {
   boolean,
   index,
+  jsonb,
   pgEnum,
   pgTable,
   smallint,
@@ -20,11 +21,15 @@ export const organizationVerificationStatusEnum = pgEnum(
   ['UNVERIFIED', 'PENDING_REVIEW', 'VERIFIED', 'REJECTED'],
 );
 
+export const platformRoleEnum = pgEnum('platform_role', ['NONE', 'DBI_ADMIN', 'SUPER_ADMIN']);
+export const verificationDecisionEnum = pgEnum('verification_decision', ['PENDING', 'APPROVED', 'REJECTED']);
+
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
   email: varchar('email', { length: 254 }).notNull(),
   passwordHash: varchar('password_hash', { length: 255 }).notNull(),
   accountType: accountTypeEnum('account_type').notNull(),
+  platformRole: platformRoleEnum('platform_role').default('NONE').notNull(),
   emailVerifiedAt: timestamp('email_verified_at', { withTimezone: true }),
   mfaEnabled: boolean('mfa_enabled').default(false).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
@@ -135,7 +140,84 @@ export const organizationInvitations = pgTable('organization_invitations', {
   index('organization_invitations_org_idx').on(table.organizationId),
 ]);
 
+export const onboardingGoalEnum = pgEnum('onboarding_goal', [
+  'FIND_JOB',
+  'GROW_INCOME',
+  'REACH_DREAM_OCCUPATION',
+  'BUILD_EXPERT_REPUTATION',
+]);
+export const talentPersonaEnum = pgEnum('talent_persona', [
+  'EARLY_CAREER',
+  'EXPERIENCED_TECHNICIAN',
+  'SENIOR_EXPERT',
+  'FREELANCER',
+]);
+export const notificationFrequencyEnum = pgEnum('notification_frequency', [
+  'IMMEDIATE',
+  'DAILY_DIGEST',
+  'WEEKLY_DIGEST',
+  'NONE',
+]);
+
+export const userProfiles = pgTable('user_profiles', {
+  userId: uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  displayName: varchar('display_name', { length: 120 }),
+  location: varchar('location', { length: 120 }),
+  primaryGoal: onboardingGoalEnum('primary_goal'),
+  persona: talentPersonaEnum('persona'),
+  targetOccupation: varchar('target_occupation', { length: 120 }),
+  onboardingStep: varchar('onboarding_step', { length: 40 }),
+  onboardingCompletedAt: timestamp('onboarding_completed_at', { withTimezone: true }),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const communicationPreferences = pgTable('communication_preferences', {
+  userId: uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  emailEnabled: boolean('email_enabled').default(true).notNull(),
+  smsEnabled: boolean('sms_enabled').default(false).notNull(),
+  inAppEnabled: boolean('in_app_enabled').default(true).notNull(),
+  whatsappEnabled: boolean('whatsapp_enabled').default(false).notNull(),
+  frequency: notificationFrequencyEnum('frequency').default('IMMEDIATE').notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const auditLogs = pgTable('audit_logs', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  actorUserId: uuid('actor_user_id').references(() => users.id, { onDelete: 'set null' }),
+  action: varchar('action', { length: 80 }).notNull(),
+  targetType: varchar('target_type', { length: 40 }).notNull(),
+  targetId: uuid('target_id'),
+  metadata: jsonb('metadata'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  index('audit_logs_target_idx').on(table.targetType, table.targetId),
+  index('audit_logs_actor_created_idx').on(table.actorUserId, table.createdAt),
+]);
+
+export const organizationVerificationSubmissions = pgTable('organization_verification_submissions', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  organizationId: uuid('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  submittedByUserId: uuid('submitted_by_user_id').references(() => users.id, { onDelete: 'set null' }),
+  documentName: varchar('document_name', { length: 200 }).notNull(),
+  documentSha256: varchar('document_sha256', { length: 64 }).notNull(),
+  notes: varchar('notes', { length: 1000 }),
+  decision: verificationDecisionEnum('decision').default('PENDING').notNull(),
+  decidedByUserId: uuid('decided_by_user_id').references(() => users.id, { onDelete: 'set null' }),
+  decisionReason: varchar('decision_reason', { length: 1000 }),
+  decidedAt: timestamp('decided_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  index('org_verification_submissions_org_idx').on(table.organizationId, table.createdAt),
+  uniqueIndex('org_verification_submissions_pending_unique')
+    .on(table.organizationId)
+    .where(sql`${table.decision} = 'PENDING'`),
+]);
+
 export const schema = {
+  organizationVerificationSubmissions,
+  userProfiles,
+  communicationPreferences,
+  auditLogs,
   users,
   consentRecords,
   emailVerificationTokens,

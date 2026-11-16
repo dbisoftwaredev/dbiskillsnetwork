@@ -40,7 +40,7 @@ Kelechi is an experienced RF (Radio Frequency) and Microwave Transmission Engine
 1. Kelechi logs into the **DBI Skills Network** and builds his **Digital Skills Passport**.
 2. He searches the official **DBI Competency Taxonomy** and tags his validated skills: *Microwave Link Planning*, *Antenna Alignment*, *BTS Integration*, and *Fiber Splicing*.
 3. He uploads his certificates and project portfolio to his **Credential Wallet**. DBI verifies his institute credentials and issues tamper-evident verified badges.
-4. The platform generates a unique, shareable **Digital Skills Passport URL and QR Code** (`dbi.skills/p/kelechi-rf-eng`).
+4. The platform generates a unique, shareable **Digital Skills Passport URL and QR Code** (illustrative only: `https://<configured-domain>/p/kelechi-rf-eng`).
 5. When bidding on new tower maintenance contracts, Kelechi simply provides his Passport link. Prospective employers scan his QR code, instantly view his verified technical competencies, distinct verification tiers (Self-Declared vs. Demonstrated vs. DBI-Verified), and verify his credentials with zero friction.
 
 ---
@@ -50,10 +50,10 @@ Kelechi is an experienced RF (Radio Frequency) and Microwave Transmission Engine
 PLAN-0002 implements the flagship individual asset of the DBI Skills Network: the **Digital Skills Passport** and the underlying **Competency Taxonomy Engine**. 
 
 It delivers:
-1. **Public Career Readiness Explorer (Value First, Registration Second — Strategy Section 10)**: Unauthenticated preview tool allowing prospective users to select a desired occupation, answer a short set of questions, and receive an instant provisional skills-gap snapshot before opening an account. Registering via `PLAN-0001` automatically saves this progress and unlocks the Passport.
+1. **Public Career Readiness Explorer (Value First, Registration Second — Strategy Section 10)**: Unauthenticated preview tool allowing prospective users to select a desired occupation, answer a short set of questions, and receive an instant provisional skills-gap snapshot before opening an account. Registering via `PLAN-0001` offers to redeem a short-lived, single-use snapshot token during PLAN-0001 signup, saving the user-confirmed provisional results and unlocking the Passport.
 2. **Telecom-First Hierarchical Competency Taxonomy (Strategy Section 9)**: Covers the six initial DBI occupational pathways—(1) RF/RAN & 4G/5G, (2) Fibre Optics & Transmission, (3) IP Networking & NOC, (4) Field Deployment & Tower/Power Infrastructure, (5) Cybersecurity & Cloud, and (6) Network Automation & Applied AI—compatible with ESCO occupational classifications and an employer-validated Nigerian telecom extension.
 3. **Progressive Talent Profile Registry & User-Confirmed CV Import (Strategy Sections 4, 7 & 16)**: Accumulates occupations, location, work preferences, experience, projects, certifications, availability, and skills across three distinct tiers (*Declared*, *Demonstrated*, *Verified*) with evidence confidence indicators (*Verified*, *Provisional*, *Insufficient Evidence*). Any automated CV extraction requires explicit user confirmation before saving.
-4. **Cryptographically Verifiable Credential Wallet (Strategy Section 5)**: Stores credentials with issuer metadata, competency links, issue/expiry dates, SHA-256 integrity hashes, revocation/status checks, and W3C Verifiable Credentials v2.0 / Open Badges compatible export.
+4. **Credential Wallet and Verifiable Issuance (Strategy Section 5)**: Stores credential evidence with issuer metadata, competency links, issue/expiry dates, SHA-256 file hashes, issuer verification and status checks; separately issues cryptographically signed W3C Verifiable Credentials v2.0 / Open Badges compatible artifacts when the DBI issuer workflow is approved. A file hash alone is not an issuer signature.
 5. **Interactive Digital Skills Passport & Selective Sharing**: Flagship portable profile with public URL, expiring purpose-limited private links, QR verification, PDF/JSON-LD export, and credential correction request pathways—always free at the core level and never displaying a single universal lifelong hiring-fit score.
 
 ---
@@ -95,7 +95,7 @@ It delivers:
     - Build passport compilation service clearly distinguishing *Self-Declared*, *Demonstrated*, and *DBI-Verified* skills alongside evidence confidence (*Verified*, *Provisional*, *Insufficient Evidence*).
     - Integration tests covering `PUBLIC`, `EMPLOYERS_ONLY`, `PRIVATE`, and expiring share-link access controls.
   - **Phase 3: QR Verification, W3C VC Export & PDF Generation (Weeks 5-6)**
-    - Implement signed QR code verification metadata and W3C Verifiable Credentials v2.0 JSON-LD export structure.
+    - Implement QR links to an issuer-signed credential/status verification route (the QR image alone is not a cryptographic proof) and W3C Verifiable Credentials v2.0 JSON-LD export structure.
     - Build print/PDF export support and end-to-end verification tests.
 
 ---
@@ -141,3 +141,37 @@ It delivers:
   - Added expiring private share links, W3C Verifiable Credentials v2.0 machine-readable export, credential correction requests, user-confirmed CV import preview, and explicit prohibition of a single universal lifelong hiring score.
   - Connected `/explorer` (*"Value first, registration second"*) directly into `PLAN-0001` signup and `/onboarding/talent` hydration.
 
+# Plan review and implementation hardening — 2026-11-16
+
+> **Review-only update.** No PLAN-0002 endpoint or UI was verified as implemented. Retain `DRAFT` and every original unchecked item. Strategy references in the original plan were not re-validated because the referenced strategy file was not included in this review.
+
+## Domain boundaries and canonical data model
+- PLAN-0002 is the **sole owner** of `taxonomy`, `talent_profiles`, `passport_skills`, `credential_wallet_items`, `passport_share_links` and public Explorer scoring. PLAN-0001 owns the authentication record and goal-first onboarding core state. PLAN-0003 writes signed evidence/assessment outcomes to the Passport through a controlled domain service, not direct cross-module SQL writes.
+- Distinguish three independent axes on every claimed skill: **evidence tier** (`DECLARED`, `DEMONSTRATED`, `VERIFIED`), **evidence confidence** (`VERIFIED`, `PROVISIONAL`, `INSUFFICIENT_EVIDENCE`), and **per-skill proficiency** (`nullable 1.0–5.0` only if the rubric justifies it). An uploaded file is not automatically `VERIFIED`; only a recognized issuer or authorized assessor can assign verification. Preserve source/provenance, rubric version and dates.
+- Make the six domain labels and skill IDs versioned canonical taxonomy records; external ESCO codes are explicit mappings, not proof that a Nigerian employer has endorsed the skill. Retire/deprecate rather than delete used IDs, with aliases and migration-safe version history.
+
+## Data privacy, sharing, CV imports and proof verification
+- PUBLIC returns only fields the user deliberately opted to publish. `EMPLOYERS_ONLY` must check an authenticated, verified employer **plus** explicit talent discovery/share permission; `PRIVATE` returns nothing without a valid owner-issued scoped token. Do not expose sensitive phone, birth date, personal email, exact address, unredacted IDs, CV source files or internal verification notes by default.
+- Share tokens are random, hashed at rest, scoped to passport version/allowed fields, optionally organization-bound, expire, can be revoked and are rate-limited. Use `Cache-Control: no-store` on private responses. QR codes are URL transport, not evidence of issuer authenticity.
+- Separate **uploaded evidence integrity** (SHA-256) from **issuer authentication and verifiable credential issuance** (digital signature/proof, trusted issuer key, verified holder binding, expiration and revocation/status). JSON-LD-shaped output is not a verifiable credential unless its required securing and verification profile is implemented and independently tested. Use test vectors for forged, expired and revoked credentials.
+- CV parsing must be preview-only until the talent explicitly confirms each field; restrict file size/type, scan uploads, encrypt objects, support correction/deletion and never retain raw CV files indefinitely by default. Public Explorer data must have short retention/TTL and cannot silently create a persistent user profile.
+
+## Proposed contract additions / adjustments
+- `[ ]` `POST /api/v1/public/career-readiness-explorer/redeem` — authenticated redemption using single-use token, user confirmation and idempotency key; coordinate with PLAN-0001 `/users/me` onboarding state to avoid duplicate hydration.
+- `[ ]` `POST /api/v1/talent/profile/cv-parse-confirm` — save only specifically accepted draft fields, with field provenance and expected profile version.
+- `[ ]` `POST /api/v1/passport/share-links/:id/revoke` — owner-driven link revocation, with audited reason.
+- `[ ]` `GET /api/v1/passport/credentials/:id/verify` — privacy-safe verification result including issuer identity, integrity, issuance, expiry, revocation and signature-validation outcome.
+- `[ ]` `GET /api/v1/passport/exports?format=pdf|vc-jsonld` — separate exports from `/passport/me` JSON to avoid conflating machine-readable format, PDF and cryptographic proof; gate signed VC export until issuer keys, proof suite and verification tests exist.
+- `[ ]` `GET /api/v1/taxonomy/versions` — supported taxonomy versions and migration/alias metadata for downstream PLAN-0003–0006 consumers.
+
+## Acceptance criteria
+- `[ ]` Guest Explorer response is explicitly **provisional**, cannot be interpreted as formal DBI verification, and expires safely; replayed/expired hydration tokens are rejected without failing registration.
+- `[ ]` Verify that `PUBLIC`, `EMPLOYERS_ONLY`, and `PRIVATE` access checks reject anonymous probing, other tenant lookups, raw file enumeration, revoked/expired share links and unexpected export formats.
+- `[ ]` Demonstrated/verified evidence cannot be raised by talent profile edits, self-rating, file upload or CV parsing alone. Missing assessment evidence stays `INSUFFICIENT_EVIDENCE`, not a fabricated zero competency.
+- `[ ]` Digital signatures, issuer trust, revocation and expiry produce correctly different outcomes for genuine, tampered, expired and revoked signed credentials. Contract tests pin the W3C v2.0 representation selected by DBI.
+- `[ ]` Offline/print PDF is marked with a generated-at timestamp and a revalidation URL; subsequent revocations make online validation show the new status even if someone retains an old PDF.
+
+## Phased release gate / dependencies
+- P0: taxonomy + Explorer contract + progressive talent profile + access-controlled read-only Passport (after PLAN-0001 identity).
+- P1: upload/issuer-validation workflow, private shares, correction and revocation.
+- P2: signed W3C VC/Open Badges interoperability after key-management and validator design approval. Do not advertise standards conformance before the signature and revocation tests pass.
