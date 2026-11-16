@@ -4,6 +4,8 @@ import { AuthModule } from './auth/auth.module';
 import { DatabaseService } from './database';
 import { DatabaseModule } from './database.module';
 import { OrganizationModule } from './organizations/organization.module';
+import { UsersModule } from './users/users.module';
+import { VerificationModule } from './verification/verification.module';
 
 class HealthResponseDto {
   @ApiProperty({ example: 'ok' })
@@ -47,7 +49,7 @@ export class HealthController {
 }
 
 @Module({
-  imports: [DatabaseModule, AuthModule, OrganizationModule],
+  imports: [DatabaseModule, AuthModule, OrganizationModule, UsersModule, VerificationModule],
   controllers: [HealthController],
 })
 export class AppModule {}
