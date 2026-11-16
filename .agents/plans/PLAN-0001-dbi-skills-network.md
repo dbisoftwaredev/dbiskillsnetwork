@@ -11,7 +11,7 @@ IN_PROGRESS
 2026-10-31
 
 # Updated at
-2026-11-02
+2026-11-16
 
 # Owner
 JED
@@ -36,28 +36,30 @@ status: DRAFT approved_by: "" approved_at: ""
 
 Horizon Telecoms is a national fiber infrastructure provider in Nigeria looking to hire and upskill fiber engineers through the DBI Skills Network. Before Horizon can search for talent, sponsor cohorts, or verify employee credentials, they need an official corporate presence on the platform. Their HR Director, Amina, visits the portal. She needs to register Horizon Telecoms, provide CAC (Corporate Affairs Commission) registration details, upload corporate credentials for DBI admin verification, and invite her recruitment team members with specific roles (e.g., Billing Admin, Recruiter, Talent Evaluator).
 
-At the same time, Babatunde, a prospective network technician in Ibadan, visits the platform. He needs a fast, frictionless sign-up experience with email or social sign-in, multi-factor authentication (MFA) to safeguard his professional record, and transparent consent toggles that comply with the Nigeria Data Protection Act (NDPA)—giving him explicit control over which companies can see his contact info.
+At the same time, Babatunde, a prospective network technician in Ibadan, visits the platform. Rather than facing a long, bureaucratic CV form, his onboarding begins with *"What would you like to achieve?"*—letting him pick his primary goal (*Find a job*, *Grow income from existing skills*, *Reach a dream occupation*, or *Build expert reputation*) and complete initial setup in 3–5 minutes on a low-data mobile connection with save-and-resume support. If he tried the public Career Readiness Explorer before registering (*"Value first, registration second"*), signing up automatically saves his provisional skills-gap snapshot. He also gets multi-factor authentication (MFA) to safeguard his record and transparent Nigeria Data Protection Act (NDPA) consent and frequency controls over service alerts versus optional marketing.
 
-Meanwhile, a DBI Operations Administrator needs a secure back-office queue where they can inspect Horizon Telecoms' submitted CAC documents, conduct institutional due diligence, and approve or reject their verification status with one click, ensuring no fraudulent businesses can exploit talent data.
+Meanwhile, a DBI Operations Administrator needs a secure back-office queue (protected by privileged-account MFA) where they can inspect Horizon Telecoms' submitted CAC documents, conduct institutional due diligence, and approve or reject their verification status with one click, ensuring no fraudulent businesses can exploit talent data.
 
 **How This Plan Fixes It:**
-1. Delivers a clean, multi-tenant authentication engine in `/backend` and `/frontend` supporting both individual **Talent** accounts and multi-seat **Organization** accounts.
-2. Implements the complete **Organization Lifecycle**: creation, profile enrichment, member invitations with role-based access control (RBAC), and document submission for official verification.
-3. Provides a dedicated **DBI Verification Queue** where platform administrators review corporate documents and grant "Verified Organization" status with audit logs.
-4. Enforces NDPA-compliant consent agreements and multi-factor authentication from day one.
+1. Delivers a clean, multi-tenant authentication engine in `/backend` and `/frontend` supporting both individual **Talent** accounts and multi-seat **Organization** accounts (Employers/Telecom Operators, Government Bodies, Donors/NGOs, and Training Partners).
+2. Implements the **3–5 Minute Goal-First Talent Onboarding** (*"What would you like to achieve?"*) with save-and-resume state, low-data mobile UX, and seamless preservation of pre-signup Career Readiness Explorer progress.
+3. Implements the complete **Organization Lifecycle**: creation, institutional categorization, profile enrichment, member invitations with role-based access control (RBAC), and document submission for official verification.
+4. Provides a dedicated **DBI Verification Queue** where platform administrators review corporate/institutional documents and grant "Verified Organization" status with immutable audit logs.
+5. Enforces NDPA-compliant consent agreements, transactional vs. marketing notification separation with frequency preferences, and multi-factor authentication from day one—while keeping core talent registration and passport access 100% free.
 
 ---
 
 # Summary
 
-This foundational plan implements the core security, identity, and organizational infrastructure for the entire DBI Skills Network. 
+This foundational plan implements the core security, identity, onboarding, and organizational infrastructure for the entire DBI Skills Network, aligned with the product strategy (`DBI_Skills_Network_Illustrated_Product_Strategy.txt`, Sections 3, 7, 8, 10, 14, 17, 18, and Appendix A–B).
 
 It establishes:
-1. Complete **Authentication & Identity Service** (Sign up, Sign in, Password Reset, Email Verification, MFA, Session Refresh).
-2. **Multi-Tenant Organization Management** (Create company/agency profiles, manage branches, invite colleagues, assign granular RBAC roles: Owner, Admin, Recruiter, Reviewer).
-3. **Organization Verification Workflow** (CAC registration capture, document upload, DBI administrative review, verification badge issuance).
-4. **NDPA Compliance & Audit Trails** (Explicit consent flags, privacy preferences, and security event logging).
-5. **Project Scaffolding**: Initializes the modular `/backend` (NestJS) and `/frontend` (Next.js) directories with design tokens and automated test harnesses following the *"Tests as the spec"* principle.
+1. Complete **Authentication & Identity Service** (Minimal-friction Sign up, Sign in, Password Reset, Email Verification, Email OTP MFA, Session Refresh, and mandatory MFA for privileged admin roles).
+2. **Goal-First Talent Onboarding (3–5 Minute Flow)**: Starts with *"What would you like to achieve?"* across four audience tracks (*Early Career*, *Experienced Field Talent*, *Senior Experts*, *Freelancers*), supports save-and-resume, preserves pre-signup Career Readiness Explorer snapshots, and requires explicit user confirmation for any imported/parsed CV data.
+3. **Multi-Tenant Organization Management** (Create employer, telecom operator, government, donor/NGO, or training partner workspaces; invite colleagues; assign granular RBAC roles: `OWNER`, `ADMIN`, `RECRUITER`, `REVIEWER`).
+4. **Organization Verification Workflow** (CAC registration & institutional credential capture, controlled document upload, DBI administrative review, verification badge issuance).
+5. **NDPA Governance, Communication Separation & Audit Trails** (Explicit versioned consent ledger, strict separation of transactional service alerts from optional marketing, channel & frequency preferences across Email/SMS/In-App/WhatsApp, non-profiling safeguards, and security audit logging).
+6. **Project Scaffolding**: Initializes the modular `/backend` (NestJS + Drizzle ORM) and `/frontend` (Next.js App Router) directories with design tokens and automated test harnesses following the *"Tests as the spec"* principle.
 
 ---
 
@@ -65,99 +67,108 @@ It establishes:
 
 - **Features**
   - **Modular Architecture Scaffolding**: NestJS application structure with isolated domain modules: `AuthModule`, `UsersModule`, `OrganizationsModule`, `VerificationModule`, `ConsentModule`, `CommunicationModule`, and `AuditModule`.
-  - **Authentication & Security Engine**: JWT access/refresh token rotation, argon2/bcrypt password hashing, email OTP-based Multi-Factor Authentication (MFA), and rate limiting.
-  - **Organization Management & Multi-Tenancy**: Organization profile creation, CAC registration numbers, company size, telecom/digital sub-sector categorization, workspace settings, and team seat provisioning.
-  - **Role-Based Access Control (RBAC)**: Fine-grained permissions (`SUPER_ADMIN`, `DBI_ADMIN`, `ORG_OWNER`, `ORG_ADMIN`, `ORG_RECRUITER`, `TALENT`).
-  - **Organization Verification Subsystem**: Multi-step verification lifecycle (`UNVERIFIED`, `PENDING_REVIEW`, `VERIFIED`, `REJECTED`), document upload storage integration, and administrative approval actions.
-  - **NDPA Consent & Notification Separation Engine**: Separates transactional notifications from optional marketing. Granular consent logging, legal terms versioning, unsubscribe/suppression preference management, and NDPA compliance audit trails.
+  - **Authentication & Security Engine**: JWT access/refresh token rotation, Argon2id password hashing, email OTP-based Multi-Factor Authentication (MFA), privileged-account MFA enforcement, and rate limiting.
+  - **Goal-First Talent Onboarding & Explorer State Hydration (Strategy Sections 7 & 10)**: Captures "What would you like to achieve?" goals (`FIND_JOB`, `GROW_INCOME`, `REACH_DREAM_OCCUPATION`, `BUILD_EXPERT_REPUTATION`), audience persona (`EARLY_CAREER`, `EXPERIENCED_TECHNICIAN`, `SENIOR_EXPERT`, `FREELANCER`), target occupation, save-and-resume step state, and attaches pre-registration Career Readiness Explorer snapshots upon account creation.
+  - **Organization Management & Multi-Stakeholder Multi-Tenancy (Strategy Sections 3 & 8)**: Organization profile creation supporting multiple institutional types (`EMPLOYER`, `TELECOM_OPERATOR`, `GOVERNMENT`, `DONOR_NGO`, `TRAINING_PARTNER`), CAC registration numbers, company size, telecom/digital sub-sector categorization, workspace settings, and team seat provisioning.
+  - **Role-Based Access Control (RBAC)**: Fine-grained platform and workspace permissions (`SUPER_ADMIN`, `DBI_ADMIN`, `OWNER`, `ADMIN`, `RECRUITER`, `REVIEWER`, `TALENT`).
+  - **Organization Verification Subsystem**: Multi-step verification lifecycle (`UNVERIFIED`, `PENDING_REVIEW`, `VERIFIED`, `REJECTED`), controlled document upload integration, and administrative approval/rejection actions with human review reasons.
+  - **NDPA Consent, Rights & Notification Separation Engine (Strategy Sections 14 & 17)**: Strictly separates transactional service notifications (vacancy alerts, assessment reminders, credential expiry) from optional marketing. Tracks versioned legal terms/privacy consent, channel opt-ins (`EMAIL`, `SMS`, `IN_APP`, `WHATSAPP`), frequency preferences (`IMMEDIATE`, `DAILY_DIGEST`, `WEEKLY_DIGEST`, `NONE`), suppression lists, and NDPA data-subject rights (consent history, portable data export, correction requests).
 
 - **Endpoints**
-  - `POST /api/v1/auth/signup` - Register user account (Talent or Organization Representative) with mandatory NDPA consent recording.
-  - `POST /api/v1/auth/signin` - Authenticate user, issue access and refresh tokens.
-  - `POST /api/v1/auth/refresh` - Rotate and issue new access token.
-  - `POST /api/v1/auth/signout` - Invalidate active session/token.
-  - `POST /api/v1/auth/forgot-password` & `POST /api/v1/auth/reset-password` - Password recovery flow.
-  - `POST /api/v1/auth/mfa/setup` & `POST /api/v1/auth/mfa/verify` - Multi-factor authentication activation.
-  - `POST /api/v1/auth/mfa/challenge` - Complete sign-in with an email OTP when MFA is enabled.
-  - `GET /api/v1/users/me` - Retrieve current user profile and active organization memberships.
-  - `PATCH /api/v1/users/me` - Update personal details and notification preferences.
-  - `GET /api/v1/users/me/communication-preferences` - Retrieve transactional vs. marketing communication consent and channel preferences (Email/SMS/WhatsApp).
-  - `PATCH /api/v1/users/me/communication-preferences` - Update channel preferences and optional marketing opt-in/opt-out.
-  - `POST /api/v1/organizations` - Create a new organization workspace.
-  - `GET /api/v1/organizations/:id` - Fetch organization details and verification status.
-  - `PATCH /api/v1/organizations/:id` - Update organization profile, contact, and branding info.
-  - `POST /api/v1/organizations/:id/members/invite` - Invite a team member with designated RBAC role.
-  - `GET /api/v1/organizations/:id/members` - List organization members and their roles.
-  - `DELETE /api/v1/organizations/:id/members/:userId` - Remove a member from the organization workspace.
-  - `POST /api/v1/organizations/:id/verification/submit` - Upload CAC documents and submit organization for DBI review.
-  - `GET /api/v1/admin/organizations/verifications` - DBI admin endpoint: list pending organization verification requests.
-  - `PATCH /api/v1/admin/organizations/:id/verification/decide` - DBI admin endpoint: approve or reject organization with reason.
+  - `[x]` `GET /api/v1/health` & `GET /api/v1/health/ready` - Process liveness and PostgreSQL readiness checks.
+  - `[x]` `POST /api/v1/auth/signup` - Register user account (`TALENT` or `ORGANIZATION_REPRESENTATIVE`) with minimal friction, mandatory NDPA consent recording (`TERMS`, `PRIVACY`), and optional `MARKETING` opt-in.
+  - `[x]` `POST /api/v1/auth/verify-email` - Verify email address using one-time verification token.
+  - `[x]` `POST /api/v1/auth/signin` - Authenticate user, issue access and refresh tokens (or MFA challenge token when MFA is enabled).
+  - `[x]` `POST /api/v1/auth/refresh` - Rotate and issue new access token.
+  - `[x]` `POST /api/v1/auth/signout` - Invalidate active session/refresh token.
+  - `[x]` `POST /api/v1/auth/forgot-password` & `POST /api/v1/auth/reset-password` - Password recovery flow via Brevo transactional email.
+  - `[x]` `POST /api/v1/auth/mfa/setup` & `POST /api/v1/auth/mfa/verify` - Email OTP multi-factor authentication enrollment and activation.
+  - `[x]` `POST /api/v1/auth/mfa/challenge` - Complete sign-in with an email OTP when MFA is enabled.
+  - `[ ]` `GET /api/v1/users/me` - Retrieve current user profile, onboarding state/goal, consent records, and active organization memberships.
+  - `[ ]` `PATCH /api/v1/users/me` - Update personal details, primary goal (`FIND_JOB`, `GROW_INCOME`, `REACH_DREAM_OCCUPATION`, `BUILD_EXPERT_REPUTATION`), audience persona, and save-and-resume onboarding progress (including hydrating pre-signup Readiness Explorer results).
+  - `[ ]` `GET /api/v1/users/me/communication-preferences` - Retrieve transactional vs. marketing communication consent, channel preferences (`EMAIL`, `SMS`, `IN_APP`, `WHATSAPP`), and frequency settings (`IMMEDIATE`, `DAILY_DIGEST`, `WEEKLY_DIGEST`, `NONE`).
+  - `[ ]` `PATCH /api/v1/users/me/communication-preferences` - Update channel/frequency preferences and optional marketing opt-in/opt-out with audit logging.
+  - `[x]` `GET /api/v1/organizations` - List organization workspaces for the authenticated user.
+  - `[x]` `POST /api/v1/organizations` - Create a new organization workspace and assign creator as `OWNER`.
+  - `[x]` `POST /api/v1/organizations/invitations/accept` - Accept an organization invitation for the invited email address.
+  - `[x]` `GET /api/v1/organizations/:organizationId` - Fetch organization details and verification status.
+  - `[x]` `PATCH /api/v1/organizations/:organizationId` - Update organization profile, CAC number, and sector info (`OWNER` / `ADMIN`).
+  - `[x]` `POST /api/v1/organizations/:organizationId/members/invite` - Invite a team member with designated RBAC role (`ADMIN`, `RECRUITER`, `REVIEWER`).
+  - `[x]` `GET /api/v1/organizations/:organizationId/members` - List organization members and their roles.
+  - `[x]` `DELETE /api/v1/organizations/:organizationId/members/:userId` - Remove a member from the organization workspace.
+  - `[ ]` `POST /api/v1/organizations/:organizationId/verification/submit` - Upload CAC/institutional documents and submit organization for DBI review.
+  - `[ ]` `GET /api/v1/admin/organizations/verifications` - DBI admin endpoint: list pending organization verification requests.
+  - `[ ]` `PATCH /api/v1/admin/organizations/:organizationId/verification/decide` - DBI admin endpoint: approve or reject organization with human-reviewed reason and audit log entry.
 
 - **Implement in Phases**
-  - **Phase 1: Project Initialization & Identity Domain (Weeks 1-2)**
-    - Scaffold `/backend` NestJS project with PostgreSQL, Prisma/TypeORM, Redis, and Jest test runner.
-    - Implement database schema for `User`, `Account`, `RefreshToken`, `ConsentRecord`, and `AuditLog`.
-    - Automated tests as the spec: Unit and integration tests for user registration, login, token refresh, and NDPA consent capture.
-  - **Phase 2: Organization Workspace & RBAC (Weeks 3-4)**
-    - Implement database schema for `Organization`, `OrganizationMember`, and `OrganizationRole`.
-    - Build organization creation, member invitation with secure tokenized email links, and role guard decorators (`@Roles()`).
-    - Integration test suite testing permission boundaries (e.g., verifying a recruiter cannot edit organization billing or invite admins).
-  - **Phase 3: Verification Engine & Admin Queue (Weeks 5-6)**
-    - Implement document upload handlers (secure S3/MinIO storage with virus/file-type validation).
-    - Build organization verification state machine and DBI administrative review endpoints.
-    - Audit logging integration recording all administrative verification approvals and denials.
+  - **Phase 1: Project Initialization & Identity Domain (Weeks 1-2) — Completed on Backend**
+    - Scaffold `/backend` NestJS project with PostgreSQL, Drizzle ORM (`drizzle-orm` + `drizzle-kit`), Argon2id, `@nestjs/throttler`, Swagger/OpenAPI docs, and Node test runner (`node --test`). (Redis deferred until needed.)
+    - Implement Drizzle database schema (`backend/src/schema.ts`) and migrations (`0000`–`0003`) for `users`, `consent_records`, `email_verification_tokens`, `password_reset_tokens`, `refresh_tokens`, and `email_otp_challenges`.
+    - Automated tests as the spec: Unit and integration tests for user registration, email verification, password reset, MFA, login, token refresh, and NDPA consent capture.
+  - **Phase 2: Organization Workspace & RBAC (Weeks 3-4) — Completed on Backend**
+    - Implement Drizzle database schema for `organizations`, `organization_members`, and `organization_invitations` (`organization_role`: `OWNER`, `ADMIN`, `RECRUITER`, `REVIEWER`).
+    - Build organization creation, member invitation with secure tokenized email links, invitation acceptance, and role guard decorators (`@OrganizationRoles()`, `OrganizationRoleGuard`).
+    - Policy and integration test suite testing permission boundaries (`organization-policy.test.ts`).
+  - **Phase 3: User Onboarding State, Communication Preferences, Verification Engine & Admin Queue (Weeks 5-6) — Pending**
+    - Implement `UsersModule` (`/users/me` and `/users/me/communication-preferences`) for profile inspection, goal-first talent onboarding state (save-and-resume + Explorer snapshot attachment), consent history, and channel/frequency preferences.
+    - Implement controlled document upload handlers and organization verification state machine (`UNVERIFIED` -> `PENDING_REVIEW` -> `VERIFIED` / `REJECTED`).
+    - Build DBI administrative review endpoints (`GET /api/v1/admin/organizations/verifications`, `PATCH /api/v1/admin/organizations/:organizationId/verification/decide`) with platform-level admin role enforcement (`SUPER_ADMIN`, `DBI_ADMIN`) and privileged MFA checks.
+    - Implement `audit_logs` schema and audit logging recording all administrative verification approvals, rejections, consent changes, and sensitive security events.
 
 ---
 
 # For Frontend (`/frontend` - Next.js App Router & Design System)
 
 - **Features**
-  - **Design System Tokens & Foundation**: Strict adherence to the platform color palette:
+  - **Design System Tokens & Visual Mandate (Strategy Section 18)**: Strict adherence to the platform color palette and global SaaS aesthetic (not a bureaucratic registry):
     - Midnight Navy: `#10263B`
     - Ocean Teal: `#128F8A`
     - Electric Mint: `#64DCD1`
     - Cloud White: `#F2F5FA`
     - Warm Gold: `#D9AB60`
-  - **Unified Authentication Experience**: Modern, high-conversion authentication screens with clear switching between Talent and Employer signup.
-  - **Organization Onboarding Wizard**: Multi-step guided wizard for company profile setup, industry categorization, and team invitations.
-  - **Organization Verification Portal**: Clear document upload interface with live verification status tracker (`Pending Review`, `Verified Badge`, `Needs Revision`).
-  - **Team Member Management**: Table showing active members, pending invitations, role dropdowns, and invite modal.
-  - **DBI Admin Verification Queue**: High-density back-office dashboard for reviewing submitted CAC documents and granting verification.
+  - **Unified Authentication Experience**: Low-friction authentication screens with clear switching between Talent and Institutional/Organization signup, requiring only minimal identity and NDPA consent fields upfront.
+  - **3–5 Minute Goal-First Talent Onboarding Wizard (Strategy Sections 7 & 10)**: Begins with *"What would you like to achieve?"* (*Find a job*, *Grow income from existing skills*, *Reach a dream occupation*, *Build expert reputation*), selects audience track (*Early career*, *Experienced field talent*, *Senior experts*, *Freelancers*), saves any pre-signup Career Readiness Explorer progress, supports save-and-resume, and requires explicit user confirmation for any parsed CV inputs.
+  - **Organization Onboarding Wizard**: Multi-step guided wizard for institutional profile setup (Employer/Telecom Operator, Government, Donor/NGO, Training Partner), sub-sector categorization, and team invitations.
+  - **Organization Verification Portal**: Clear document upload interface with live verification status tracker (`Unverified`, `Pending Review`, `Verified Badge`, `Rejected / Needs Revision`).
+  - **Team Member Management**: Table showing active members, pending invitations, role dropdowns (`OWNER`, `ADMIN`, `RECRUITER`, `REVIEWER`), and invite modal.
+  - **DBI Admin Verification Queue**: High-density back-office dashboard for reviewing submitted CAC/institutional documents and granting or rejecting verification with audit reasons.
 
 - **Sub Features**
-  - Form validation with Zod / React Hook Form.
-  - Password strength meter and inline NDPA consent agreement modals.
-  - Instant avatar/logo image cropper and document PDF upload preview.
-  - Mobile-responsive layout for talent and desktop-optimized layout for organization admins.
+  - Save-and-resume onboarding state and bandwidth-conscious, low-data mobile-first layout for talent; desktop-optimized layout for institutional admins.
+  - WCAG-oriented color contrast, keyboard accessibility, and `prefers-reduced-motion` support.
+  - Password strength meter and inline NDPA consent agreement modals separating service notifications from optional marketing.
+  - Document upload preview for CAC and institutional verification files.
 
 - **Pages**
-  - `/` - Landing page with distinct "Join as Talent" and "Register Your Organization" CTA buttons.
-  - `/auth/login` - Unified Sign-in page.
-  - `/auth/signup` - Sign-up entry with role selector (Talent vs. Organization).
-  - `/auth/verify-email` - Email verification landing page.
-  - `/auth/forgot-password` & `/auth/reset-password` - Password recovery flow.
-  - `/auth/mfa` - Two-factor authentication challenge page.
-  - `/onboarding/organization` - Multi-step organization creation wizard.
-  - `/organization/dashboard` - Organization central hub.
-  - `/organization/profile` - Organization settings, branding, and details.
-  - `/organization/members` - Team seat management and role assignments.
-  - `/organization/verification` - CAC document submission and verification progress tracker.
-  - `/settings/privacy-consent` - NDPA transparency dashboard with consent logs and notification preferences (Email/SMS/WhatsApp opt-in switches).
-  - `/admin/verifications` - DBI Admin queue for reviewing and approving organizations.
+  - `[x]` `/` - Landing page with distinct "Join as Talent" and "Register Your Organization" CTA buttons and preview profiles.
+  - `[ ]` `/auth/login` - Unified Sign-in page.
+  - `[ ]` `/auth/signup` - Minimal-friction Sign-up entry with role selector (Talent vs. Organization) and pre-signup Explorer session preservation.
+  - `[ ]` `/auth/verify-email` - Email verification landing page.
+  - `[ ]` `/auth/forgot-password` & `/auth/reset-password` - Password recovery flow.
+  - `[ ]` `/auth/mfa` - Two-factor authentication challenge and setup page.
+  - `[ ]` `/onboarding/talent` - 3–5 minute Goal-First Talent Onboarding (*"What would you like to achieve?"* -> goal & aspiration -> skill declaration / confirmed CV import -> provisional insight & Passport handoff) with save-and-resume.
+  - `[ ]` `/onboarding/organization` - Multi-step organization creation wizard and team invitation acceptance flow.
+  - `[ ]` `/organization/dashboard` - Organization central hub.
+  - `[ ]` `/organization/profile` - Organization settings, institutional type, branding, and details.
+  - `[ ]` `/organization/members` - Team seat management and role assignments.
+  - `[ ]` `/organization/verification` - CAC/institutional document submission and verification progress tracker.
+  - `[ ]` `/settings/privacy-consent` - NDPA transparency dashboard with versioned consent logs, transactional vs. marketing separation, channel toggles (`Email`/`SMS`/`In-App`/`WhatsApp`), and frequency preferences.
+  - `[ ]` `/admin/verifications` - DBI Admin queue for reviewing and approving/rejecting organizations.
 
 - **Implement in Phases**
-  - **Phase 1: Next.js Scaffolding & Design System Tokens (Weeks 1-2)**
-    - Initialize `/frontend` with Next.js (App Router, TypeScript, Tailwind CSS).
-    - Setup Tailwind theme matching `#10263B`, `#128F8A`, `#64DCD1`, `#F2F5FA`, `#D9AB60`.
-    - Build core UI primitives (Button, Input, Card, Modal, Badge, Toast, Table) with unit tests.
-  - **Phase 2: Authentication & Onboarding UI (Weeks 3-4)**
-    - Build `/auth/login`, `/auth/signup`, MFA challenge, and organization creation wizard.
-    - Integrate with Backend API using typed React Query / Server Actions.
-    - Automated user journey tests (Playwright) covering signup, login, and token refresh.
-  - **Phase 3: Organization Management & Verification Views (Weeks 5-6)**
-    - Implement member management tables, invitation modals, and verification file upload interfaces.
-    - Build DBI Admin verification queue with document previewers and approval modals.
-    - End-to-end regression testing and WCAG AA accessibility audit.
+  - **Phase 1: Next.js Scaffolding & Design System Tokens (Weeks 1-2) — Partially Completed**
+    - `[x]` Initialize `/frontend` with Next.js (App Router, TypeScript), same-origin `/api/*` rewrite proxy, and landing page (`/`).
+    - `[x]` Setup CSS design tokens matching `#10263B`, `#128F8A`, `#64DCD1`, `#F2F5FA`, `#D9AB60`.
+    - `[ ]` Build reusable core UI primitives (Button, Input, Card, Modal, Badge, Toast, Table) with unit tests.
+  - **Phase 2: Authentication & Goal-First / Institutional Onboarding UI (Weeks 3-4) — Pending**
+    - `[ ]` Build `/auth/login`, `/auth/signup`, `/auth/verify-email`, `/auth/forgot-password`, `/auth/reset-password`, and `/auth/mfa`.
+    - `[ ]` Build `/onboarding/talent` (3–5 minute *"What would you like to achieve?"* flow with save-and-resume and low-data mobile UX) and `/onboarding/organization` wizard.
+    - `[ ]` Integrate with Backend `/api/v1/auth/*`, `/api/v1/users/me*`, and `/api/v1/organizations/*` endpoints via same-origin proxy.
+    - `[ ]` Automated user journey tests (Playwright) covering signup, email verification, login, MFA challenge, token refresh, talent goal onboarding, and organization onboarding.
+  - **Phase 3: Organization Management, Privacy & Verification Views (Weeks 5-6) — Pending**
+    - `[ ]` Implement `/organization/dashboard`, `/organization/profile`, `/organization/members` (member management tables & invitation modals), `/organization/verification`, and `/settings/privacy-consent`.
+    - `[ ]` Build `/admin/verifications` DBI Admin verification queue with document inspection and approval/rejection modals.
+    - `[ ]` End-to-end regression testing and WCAG AA / reduced-motion / low-bandwidth accessibility audit.
 
 # Implementation progress — 2026-11-02
 - User authorized proceeding with the environment-lean foundation scaffold.
@@ -169,3 +180,18 @@ It establishes:
 - Added email OTP MFA enrollment and sign-in challenge endpoints. Codes are one-time, expire after five minutes, are limited to five attempts, and are stored as keyed hashes. Enabling MFA revokes existing refresh sessions.
 - Added one-time password reset tokens sent through Brevo. Reset requests return the same response for existing and unknown accounts; completing a reset updates the password and revokes refresh sessions.
 - Email OTP MFA and password recovery reuse the configured Brevo sender; no additional MFA- or password-reset-specific environment variables are needed. Frontend MFA screens, account MFA management, organizations, and verification workflows remain pending.
+
+# Implementation progress — 2026-11-16 (Plan Review, Strategy Alignment & Codebase Audit)
+- Audited `/backend`, `/frontend`, and `DBI_Skills_Network_Illustrated_Product_Strategy.txt` (Sections 3, 7, 8, 10, 14, 17, 18, and Appendix A–B) against `PLAN-0001`:
+  - **Strategy Alignment Updates Added to `PLAN-0001`**:
+    - **Goal-First Talent Onboarding (Section 7)**: Added the 3–5 minute *"What would you like to achieve?"* onboarding flow (`/onboarding/talent` and `PATCH /api/v1/users/me`) across the four talent segments (*Early career*, *Experienced field talent*, *Senior experts*, *Freelancers*), with save-and-resume state, mandatory user confirmation for parsed CV data, and low-data mobile UX.
+    - **Pre-Signup Readiness Explorer Hydration (Section 10)**: Ensured registration and onboarding preserve provisional snapshots from the unauthenticated Career Readiness Explorer (*"Value first, registration second"*).
+    - **Multi-Stakeholder Institutional Types (Sections 3 & 8)**: Expanded organization onboarding and profiles to cover Employers/Telecom Operators, Government Bodies/Regulators, Donors/NGOs, and Training Partners.
+    - **Communication Frequency & NDPA Governance (Sections 14 & 17)**: Added notification frequency controls (`IMMEDIATE`, `DAILY_DIGEST`, `WEEKLY_DIGEST`, `NONE`), `IN_APP` channel support alongside `EMAIL`/`SMS`/`WHATSAPP`, non-profiling safeguards, and privileged-account MFA enforcement.
+  - **Backend Phase 1 & Phase 2 Complete**:
+    - `AuthModule` (`backend/src/auth/`) fully implements `signup`, `verify-email`, `forgot-password`, `reset-password`, `signin`, `mfa/setup`, `mfa/verify`, `mfa/challenge`, `refresh`, and `signout` with Argon2id hashing, keyed token hashes, Brevo transactional emails, and `@nestjs/throttler`.
+    - `OrganizationModule` (`backend/src/organizations/`) fully implements workspace listing (`GET /organizations`), creation (`POST /organizations`), profile retrieval/updates (`GET/PATCH /organizations/:organizationId`), tokenized email invitations (`POST /organizations/:organizationId/members/invite`, `POST /organizations/invitations/accept`), member listing/removal (`GET/DELETE /organizations/:organizationId/members`), and RBAC enforcement (`OrganizationRoleGuard`, `canManageRole` policy).
+    - Drizzle ORM schema (`backend/src/schema.ts`), 4 SQL migrations (`backend/drizzle/0000`–`0003`), and Swagger/OpenAPI documentation (`/api/docs`, `/api/docs-json`) are in place and covered by automated tests (`foundation.test.ts`, `auth-email.test.ts`, `organization-policy.test.ts`, `swagger.test.ts`).
+  - **Next Execution Priorities to Complete `PLAN-0001`**:
+    1. **Backend Phase 3**: Implement `UsersModule` (`/users/me`, `/users/me/communication-preferences` including goal-first onboarding state and frequency preferences), organization verification submission (`POST /organizations/:organizationId/verification/submit`), DBI admin verification review queue (`GET /admin/organizations/verifications`, `PATCH /admin/organizations/:organizationId/verification/decide`), and `audit_logs` persistence.
+    2. **Frontend Phase 1–3**: Build shared UI primitives, authentication pages (`/auth/*`), 3–5 minute goal-first talent onboarding (`/onboarding/talent`), organization onboarding wizard (`/onboarding/organization`), workspace management views (`/organization/*`), NDPA consent dashboard (`/settings/privacy-consent`), and DBI admin queue (`/admin/verifications`), backed by Playwright E2E tests.
