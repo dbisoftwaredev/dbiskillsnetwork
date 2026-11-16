@@ -1,0 +1,200 @@
+﻿DIGITAL BRIDGE INSTITUTE
+DBI SKILLS NETWORK
+A proposed DBI digital skills, talent intelligence and opportunity ecosystem
+YOUR SKILLS. YOUR REPUTATION. YOUR NEXT OPPORTUNITY.
+Integrated Executive Product Concept • Business Model • Functional Blueprint • Go-to-Market Strategy
+DBI Skills Network is the provisional product name. Final institutional branding, domain and trademark checks will be completed before public launch.
+Prepared for DBI leadership and potential strategic partners | 29 October 2026
+
+Executive summary
+
+DBI Skills Network is proposed as DBI's flagship digital workforce infrastructure: a platform that identifies, assesses and verifies technical talent; shows individuals their career readiness and competency gaps; connects them to relevant learning and paid opportunities; and gives employers, governments and development partners privacy-respecting access to skilled manpower intelligence.
+The platform goes beyond a job board, freelancer marketplace or training portal. Its core commercial advantage is the continuous cycle of Discover → Verify → Diagnose → Develop → Connect → Measure. Its signature consumer asset is the portable DBI Digital Skills Passport; its institutional differentiator is evidence-backed telecom and technology workforce intelligence.
+
+The initial focus is Nigeria's telecom and adjacent ICT sectors, with the potential to extend to wider digital professions and other African markets. Registration is free at the basic level. Revenues should primarily come from employers, sponsors, assessments, training programmes, recruitment services and institutional intelligence.
+Decision requested
+* Approve the platform concept and a controlled four-week discovery/validation phase.
+* Authorise a name-clearance exercise before any public branding or domain purchase.
+* Mandate engagement with initial anchor telecom/technology employers and prospective funders.
+* Commission premium product UX/UI prototypes and competency taxonomy design before full engineering.
+1. Strategic opportunity
+Nigeria faces a persistent mismatch between stated qualifications, demonstrable skills, industry demand and access to work. CV-led recruitment often leaves employers uncertain about capability; aspiring professionals lack reliable skills-gap guidance; experienced technicians may have considerable ability but insufficient portable recognition; and sponsors need evidence of programme outcomes.
+DBI can bridge these needs by becoming a trusted evaluator and orchestrator of telecom/ICT talent. The ambition is to build a commercially sustainable, consent-based skilled manpower registry, not a government-designated official registry unless an appropriate mandate is secured.
+2. Positioning, mission and product promise
+Mission: Identify, verify, develop and connect digital and telecommunications talent to meaningful economic opportunity, while producing decision-grade workforce intelligence for institutions.
+Public-facing promise: Your Skills. Your Reputation. Your Next Opportunity.
+Institutional promise: Find the capabilities you need; understand the gaps; develop a measurable pipeline of deployable talent.
+Defensibility: The moat is not profile volume. It is the quality and recency of assessment evidence, trusted credential issuers, employer adoption, occupation-specific frameworks, verified outcomes and repeatable access to relevant projects.
+3. Ecosystem and key stakeholders
+
+StakeholderImmediate valueLong-term valueStudents / career changersCareer readiness, gap analysis, jobs and funded learningProgression, credentials and earningsExperienced techniciansRecognition of practical skills and contract leadsPortable reputation and deployment historySenior experts / consultantsExpert Circle, advisory invitations, paid mentoringInfluence, monetisation and professional standingEmployers / telecom operatorsVerified talent search, shortlists, assessmentsWorkforce planning, talent pipelinesGovernment / policy bodiesAggregated skills distribution and shortagesProgramme targeting and impact measurementDonors / NGOsFunded cohorts and monitored outcomesAuditable training-to-employment impactTraining partnersQualified learners and demand insightBetter course effectiveness and funded projects
+4. Product operating model: six connected engines
+Talent Registry
+Progressively enriched profiles: occupations, location, work preferences, experience, projects, certifications, declared skills, evidence and availability.
+SkillVerify
+Assessments spanning technical questions, work samples, coding labs, telecom simulations, supervised practical evaluations, credential checks and authorised endorsements.
+CareerGPS
+Dream-role selection, transparent readiness estimation, skills gaps, adjacent career options and recommended next steps.
+SkillBridge
+DBI and approved external courses, labs, mentorship, industry certifications and sponsored pathways targeted to validated gaps.
+OpportunityHub
+Full-time employment, contracts, internships, field deployments, projects, consultancy and suitable digital task assignments.
+WorkforceIQ
+Privacy-preserving labour intelligence: competency supply, geographic distribution, demand gaps, training effectiveness and programme outcomes.
+Shared capabilities: identity, eligibility and consent, occupation/skills taxonomy, evidence repository, matching engine, notification service, analytics, auditing, secure payments and partner integrations.
+5. Digital Skills Passport - the flagship asset
+
+Every professional receives a free, portable digital profile that accumulates authenticated evidence across jobs, learning providers and projects. The Skills Passport is the persistent career asset that makes the platform worth joining and returning to.
+* Identity and headline: selected professional name, location and occupation (with visibility controls).
+* Structured capability record: declared, demonstrated and verified skills shown distinctly.
+* Credential wallet: issuer, competency, evidence reference, issue/expiry dates and current verification status.
+* Verified project portfolio, experience references, training and achievement history.
+* Shareable public URL, expiring private links, QR verification and machine-readable export.
+* User-controlled permissions, correction requests, credential status and portability independent of paid subscription.
+Technical direction: support W3C Verifiable Credentials v2.0 and compatible open badge patterns where practical; use issuer signing, revocation/status checks and purpose-limited selective sharing. An overall hiring-fit score must not be presented as a universal lifelong credential.
+6. Talent ratings, verification and job suitability
+
+Ratings must be skill- and role-specific, explainable and appealable. The platform should not assign a single universal star rating that misrepresents a person across unrelated professions.
+MeasureIllustrationInterpretationSkill proficiency4.3 / 5 stars in Fibre SplicingDemonstrated domain capabilityJob suitability86% for Field Deployment SupervisorMatch to a specific role at a particular timeEvidence confidenceVerified / provisional / insufficient evidenceQuality and freshness of supporting proof
+Illustrative role score allocation: technical competence 40%; relevant experience 20%; work samples 15%; credentials 10%; role-specific professional skills 10%; evidence quality/recency 5%. These are hypotheses requiring validation with employers and fair-assessment specialists, not final scientific weights.
+Assessments should be calibrated by occupation and proficiency level. Missing evidence should prompt assessment, not an unjustified low rating. Hiring decisions remain with accountable human employers; users receive clear reasons, review and appeal options.
+7. Audience-specific benefit proposition and onboarding
+Onboarding begins with "What would you like to achieve?" rather than a long CV form: find a job; grow income from existing skills; reach a dream occupation; or build expert reputation. Only minimal identity and consent information is required to create an account, then progressive enrichment follows.
+AudienceImmediate registration rewardRetention driverEarly careerFree readiness snapshot, career roadmap and passportSkills gains, internships, funded trainingExperienced field talentPortable portfolio and eligibility for deployment campaignsRepeat contracts and verified project historySenior expertsExpert Circle application and authority profilePaid consulting, panels and mentoringFreelancersTrusted service portfolio and discovery listingProject bids and repeat client connections
+The desired initial flow is 3-5 minutes: verify email/phone → choose goal and aspiration → import or declare skills → view provisional insight → create passport → optionally complete assessment. CV parsing needs user confirmation; save-and-resume and low-data mobile design are essential.
+8. Talent Workspace and premium user experiences
+The talent-facing dashboard is a professional command centre, not an administrative database form. It should highlight the next useful action, explain progress and make credentials and opportunities immediately accessible.
+
+* Top-level: professional identity, passport share button, verification status and current career goal.
+* CareerGPS: readiness gauge, target-role comparison, priority gaps and adjacent paths.
+* Skills: domain-specific star ratings, competency matrix, evidence confidence and progress history.
+* Opportunities: ranked matches, contract alerts, saved applications, shortlisting updates and availability controls.
+* Learning: active pathways, sponsored programmes, assessment bookings, training achievements.
+* Expert Circle: premium assignments, mentoring, advisory work, speaking opportunities and service packages.
+* Professional tools: CV builder, shareable portfolio, QR credentials, interview preparation and notification centre.
+* AI Career Coach: explainable suggested next actions, never invented credentials or guaranteed jobs.
+Additional dashboards
+Employer cockpit: vacancies, verified candidate search, shortlist comparison, assessment requests, candidate outreach and hire outcomes. Government cockpit: aggregate maps, skills shortages, cohort outcomes and privacy-safe exports. Donor cockpit: programme design, eligibility, funding milestones, beneficiary progress and outcome reporting. DBI operations cockpit: role taxonomy, assessment bank, credential issuance, moderation, employer contracts, campaigns, finance and audit trails.
+9. Telecom-first competency strategy
+Begin with occupational pathways that DBI can credibly assess and commercialise: RF/RAN and 4G/5G; fibre optics and transmission; IP networking and NOC; field deployment and tower/power infrastructure; cybersecurity/cloud; network automation and applied AI. For each, define competency levels, required evidence, role variations, practical assessment tasks and learning pathways.
+Use accepted occupational frameworks such as ESCO where licensing and relevance permit, then build an employer-validated Nigerian telecom extension. Assessment validity, safety-critical field requirements and relevant certifications must be reviewed by sector specialists.
+10. Why people will sign up - value first, registration second
+
+The public Career Readiness Explorer should allow someone to select a desired occupation and answer a short set of questions before opening an account. They receive a provisional skills-gap snapshot instantly. Registration then saves that progress, unlocks the Skills Passport and enables relevant alerts.
+Launch benefits
+* Free basic Skills Passport, portfolio link and CV-ready professional profile.
+* Free provisional career-readiness report and limited introductory assessment.
+* Real job, contract and project alerts curated to verified skills and preferences.
+* Access to actual employer recruitment campaigns and announced sponsored cohorts.
+* Professional recognition for existing skills, not forced training for experts.
+* Optional premium verification and specialist services when worth the cost.
+Do not promise paid projects, funded training or job offers that are not available. Avoid paying indiscriminate cash for registrations; use partner benefits and meaningful contribution rewards instead.
+11. Go-to-market: six complementary acquisition channels
+ChannelMechanismIllustrative Y1 registrationsDBI programmes and alumniOpt-in passport activation at training/completion10,000NYSC/Universities/polytechnicsGraduate-readiness drives and career days12,000Employer-led campaignsReal jobs and technician deployment calls8,000Skills challengesTelecom, cloud and cyber assessments8,000Organic referralsPassport sharing and successful invite loops7,000Government/donor cohortsSponsored assessment and development programmes5,000
+Total scenario: 50,000 registrations over twelve months, purely a target assumption. Growth must be managed through activation, verified-skill conversion, repeat use, qualified candidates, employer engagement and actual placement results rather than headline account totals.
+Solve the two-sided marketplace risk by acquiring 3-5 anchor employers and a small, well-defined group of deployable technical candidates before major consumer advertising. Every acquisition campaign should point to a real benefit.
+12. Expert Circle and talent monetisation
+Expert Circle is a differentiated professional network for engineers, architects, cybersecurity specialists, project leaders, consultants, trainers and senior practitioners. Expert designation requires credible evidence and review, not payment alone.
+* Curated advisory and specialist consultancy invitations.
+* Verified expert directory and employer-requested private introductions.
+* Paid mentoring, technical assessments and training delivery.
+* Short-term engineering assignments, audits and project leadership.
+* Optional reputation insights and portfolio support.
+DBI earns transparent facilitation fees on completed assignments where legally and contractually appropriate. Experts always retain control of their availability and whether they participate.
+13. Sponsored workforce development exchange
+A funder or employer can define a role pipeline, region, budget, eligibility and outcome targets. The platform identifies ready candidates and near-ready candidates, diagnoses gaps, funds structured training, verifies progression and tracks job outcomes.
+Illustrative case: an operator seeks 100 fibre engineers. The registry identifies 35 ready, 45 needing short intervention and 20 requiring deeper development. Training and assessment are financed for eligible cohorts; DBI manages milestone reporting and placement coordination. The numbers are scenario examples, not market data.
+14. Communication and engagement engine
+Include segmented email/SMS/in-app communications and approved WhatsApp integrations for user-requested service alerts. Features: vacancy alerts, assessment reminders, credential expiry, career newsletters, sponsored programmes, employer campaigns, event invitations, campaign automation and conversion analytics.
+Transactional notifications and optional marketing must be separated. Marketing consent, unsubscribe, suppression, audit and frequency preferences are mandatory. Avoid profiling-based targeting that reveals sensitive inferred traits.
+15. Commercial model and illustrative revenue
+
+StreamBase assumptionAnnual gross revenueEmployer subscriptions40 employers × ₦1.5m₦60mAssessments5,000 assessments × ₦10,000₦50mSponsored training contracts4 projects × ₦25m₦100mWorkforce intelligence licences10 clients × ₦5m₦50mRecruitment placements200 placements × ₦150k₦30mIllustrative annual totalNot a forecast₦290m
+This is a revenue illustration, not a profit estimate, investment forecast or validated pricing study. The business case must model implementation, staff, assessment delivery, credential checking, cloud, marketing, customer acquisition, compliance, sales cycles, tax, payment fees, gross margin and cash flow. Talent registration and basic passports remain free.
+16. Technology and intelligence architecture
+Recommended implementation: responsive Next.js/React/TypeScript front end; NestJS modular API; PostgreSQL with a structured competency graph and evidentiary records; Redis for queue/cache; object storage for controlled documents; search infrastructure scaled when demand requires; Python-based intelligence services for validated recommendations. Integrate existing DBI Moodle offerings instead of rebuilding an LMS.
+Core services: identity/consent, skills taxonomy, profile registry, assessments, evidence verification, role requirements, scoring, passport issuance, learning pathways, jobs/projects, employer search, cohort sponsorship, campaigns, payments, reporting, audit and integrations.
+AI use cases: user-confirmed CV extraction, occupation mapping, explainable gap analysis, career recommendations, assisted matching and aggregate forecasting. LLM outputs never independently authenticate qualifications, determine final employability or issue unverifiable scores.
+17. Data governance, trust and safeguards
+* Nigeria Data Protection Act compliance assessment, proper legal bases, transparency, retention periods and rights processes.
+* Opt-in employer visibility, private/public passport modes and access controls for individual records.
+* Aggregated government intelligence with minimum cell thresholds and suppression of potentially identifying slices.
+* Identity and credential fraud controls, issuer audit, assessment integrity and malpractice review.
+* Human review of significant automated decisions; explainability, fairness testing, appeal and correction pathways.
+* Security baseline: MFA for privileged accounts, encryption, rate limits, logging, incident response, backup and recovery.
+* A clear distinction between DBI-issued verified credentials and third-party or self-declared information.
+18. Premium UI/UX and visual design mandate
+DBI Skills Network must look and behave like a premium global SaaS product: distinctive, fast, approachable, polished and credible. The aesthetic must not resemble a bureaucratic national registry or a generic learning dashboard.
+Visual direction: midnight navy #10263B; ocean teal #128F8A; electric mint #64DCD1; cloud white #F2F5FA; restrained warm gold #D9AB60. Combine precise editorial typography, spacious grids, crisp icons, soft dimensional surfaces, readable data visualisations and tasteful animation.
+* Signature experiences: animated career map, interactive skill radar, verified passport card, competency growth timeline, sectoral workforce atlas and premium employer shortlist comparison.
+* Responsive talent-first mobile experiences and desktop-optimised institutional analytics.
+* WCAG-oriented colour contrast, keyboard accessibility, reduced motion and bandwidth-conscious visuals.
+* High-quality original illustrations and graphics, not stock-heavy corporate templates.
+* A cohesive design system with Figma components, tokens, responsive states, prototype interactions and usability testing.
+19. Implementation roadmap and release gates
+StageDurationDeliverables / gate0 - Validate4 weeksStakeholder research, employers, taxonomy, name clearance, clickable prototypes1 - Market MVP12 weeksOnboarding, registry, passport, readiness, basic assessments, matching, employer/admin portals2 - Commercialise8 weeksLMS integration, premium verification, funded cohorts, billing, expert offers3 - Institutional scale8 weeksGovernment/donor portals, expanded WorkforceIQ, APIs, market rollout
+Approximately 32 weeks for these sequential planning stages; times are assumptions conditional on dedicated staffing and prompt approvals. Pilot employer and talent acquisition should begin in development. Each stage ends with adoption, quality, security and commercial decision gates.
+90-day pilot
+Days 1-30: employer/user interviews, legal/naming clearance, competency design, landing page, passport UX and pilot employer commitments. Days 31-60: build pilot functionality, recruit defined talent cohorts, assess and verify selected competencies. Days 61-90: test real job matching, recruitment outcomes, repeat engagement and willingness to pay.
+Indicative initial pilot targets: 1,000-2,000 sign-ups; 500 useful profiles; 200 verified skill assessments; 3-5 active employers. These should be adjusted based on actual partner commitments.
+20. KPIs, risks and decisions
+Success dimensionPrimary KPIQuality of supplyProfiles with sufficiently complete, current skill evidenceVerified capabilityVerified competencies per active userCareer developmentMeasured competency gains after interventionsEmployer valueQualified shortlist yield and time to hireOpportunity outcomesPlaced/contracted workers and repeat engagementsRevenue qualityPaid institutional customers, renewal, gross marginRetention30/90-day active professional engagementPublic valuePrivacy-safe regional skill gap and programme outcomes
+Principal risks: two-sided marketplace cold start; inaccurate self-reported data; insufficient employer demand; assessment cost and fairness; privacy and cybersecurity; low retention after sign-up; slow institutional procurement; training outcomes without jobs; name and intellectual property conflict.
+Mitigation: start narrow and employer-led; deliver user value before registration; use verified evidence; gate product scope; maintain portable credentials and consent controls; prove paying use cases before mass marketing.
+21. Provisional name and brand governance
+Provisional working name: DBI Skills Network. The product will offer connected services including the DBI Digital Skills Passport, SkillVerify, CareerGPS, OpportunityHub and WorkforceIQ.
+The provisional product name remains subject to appropriate institutional branding, domain, corporate-name and trademark review. 
+The provisional name is used consistently throughout this concept for clarity. No final public brand approval is implied.
+22. Strategic recommendation and next approvals
+DBI should prioritise the following first-wave differentiators: (1) the free portable Skills Passport; (2) the no-account Career Readiness Explorer; (3) telecom-first competency verification; (4) real employer-linked jobs and contracts; (5) Expert Circle for professionals who already have substantial capabilities; and (6) WorkforceIQ as a higher-value institutional business.
+This is an opportunity to create a trusted infrastructure layer for the digital workforce - not simply another website where Nigerians upload CVs. The product will succeed only if verified capability, credible opportunity access and measurable institutional value are built together.
+Selected external references
+* W3C Verifiable Credentials Data Model v2.0 - https://www.w3.org/TR/vc-data-model/
+* ESCO European classification of Skills, Competences, Qualifications and Occupations - https://esco.ec.europa.eu/
+* OneForma - https://www.oneforma.com/
+* Jobberman Nigeria - https://www.jobberman.com/
+* Nigeria Data Protection Commission - https://ndpc.gov.ng/
+* Preliminary naming evidence: https://find-and-update.company-information.service.gov.uk/company/17475132
+* Existing related names: https://skillnexus.uk/ ; https://veritalent.com/ ; https://www.skillbridge.digital/
+
+
+Appendix A - Benefits and value for every stakeholder
+DBI Skills Network is a multi-sided market. Every stakeholder should receive demonstrable value independent of the needs of DBI as platform operator. The benefits below represent the services to design and deliver, not unconditional promises of jobs, grants or contracts.
+Students and early-career talent
+Tangible benefits: Free passport, readiness report, skill-gap roadmap, verified progression, entry jobs, internships and genuine funded-course eligibility.
+Suggested success measure: Completed profiles, assessment participation, placements
+Experienced technicians
+Tangible benefits: Recognition of practical abilities without degree barriers, field assignment visibility, sharable competencies and employer verification.
+Suggested success measure: Verified technical skills, contract matches, completed deployments
+Senior experts and consultants
+Tangible benefits: Expert Circle invitations, advisory projects, trainer/assessor work, expert recognition and a durable portfolio of work.
+Suggested success measure: Qualified expert engagements, repeat client assignments
+Employers and recruiters
+Tangible benefits: Verified candidate discovery, role-specific suitability, assessments, targeted shortlists and reduced screening burden.
+Suggested success measure: Shortlist quality, time-to-hire, repeat subscriptions
+Telecom operators and contractors
+Tangible benefits: Geographic availability of engineers and technicians, project staffing, competence validation and sponsored talent pipeline.
+Suggested success measure: Deployment fill rates, hiring lead time, verified field readiness
+Government institutions
+Tangible benefits: Aggregated sector skills maps, location gap analysis, training priority targeting and credible programme performance evidence.
+Suggested success measure: Workforce reporting coverage and intervention impact
+Donors, development agencies and NGOs
+Tangible benefits: Transparent cohort targeting, funding milestones, skills improvement evidence and employment outcomes.
+Suggested success measure: Completion, verified gains, placement and retention
+Training and certification partners
+Tangible benefits: Demand-linked learners, managed cohorts, industry feedback and course outcome measurement.
+Suggested success measure: Learner conversions and validated learning gains
+Digital Bridge Institute
+Tangible benefits: Commercial revenue, partner engagement, research data, industry credibility, training demand and measurable public value.
+Suggested success measure: Gross margin, recurring revenue, institutional contracts, outcomes
+Appendix B - Payment, access and commercial sustainability
+DBI Skills Network is free to join. Basic profile creation, skills passport, job applications, basic career-readiness insights and consent controls remain free. No candidate should pay to be considered for recruitment. Paid credentials must never be confused with purchased talent ratings.
+Who pays and why
+CustomerPricing arrangementValue purchasedEmployersSubscription / recruiter seatVerified talent discovery, shortlists, recruiting toolsTelecom enterprisesEnterprise contractWorkforce planning, field deployment, custom assessmentGovernmentAnnual licence / commissioned workAggregated intelligence and programme analyticsDonors and NGOsProject funding contractSkills-gap screening, cohorts, delivery, outcomesProfessional usersFree core; optional advanced servicesSpecialised assessments or credentials, never paid access to jobsProject clientsTransparent service feeManaged consultant and project engagementsIllustrative annual gross revenue
+Base scenario: 40 employers × ₦1.5m = ₦60m; 5,000 assessments × ₦10,000 = ₦50m; four sponsored contracts × ₦25m = ₦100m; ten workforce intelligence licences × ₦5m = ₦50m; 200 placements × ₦150,000 = ₦30m. TOTAL: ₦290m annual gross revenue. These are assumptions for validation and not a sales forecast or estimate of profit.
+Appendix C - Visual production standards
+These embedded diagrams and screen mockups are conceptual illustrations. Production design requires an original Figma design system, polished light and dark modes, consistent DBI Skills Network branding, accessible contrast, responsive grids, live interactive prototypes, professional data visualisations and usability-tested candidate and institutional workflows.
+DBI  /  DBI SKILLS NETWORK                                         PRODUCT STRATEGY & BUSINESS CONCEPT
+
+CONFIDENTIAL • CONCEPT NOTE • 29 OCTOBER 2026
+
