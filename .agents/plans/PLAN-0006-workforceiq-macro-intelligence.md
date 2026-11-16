@@ -11,7 +11,7 @@ DRAFT
 2026-10-31
 
 # Updated at
-2026-10-31
+2026-11-16
 
 # Owner
 JED
@@ -56,70 +56,80 @@ Crucially, this intelligence must respect citizen privacy under the Nigeria Data
 PLAN-0006 implements **WorkforceIQ**, the institutional, regulatory, and B2B labor intelligence engine of the DBI Skills Network.
 
 It delivers:
-1. **Sectoral Workforce Atlas**: High-density interactive geographic heatmap displaying skills supply, training capacity, and regional talent distribution across Nigeria.
-2. **Privacy-Preserving Aggregator Engine**: Pre-computed statistical aggregates with dynamic k-anonymity suppression (k=10 threshold) ensuring complete NDPA compliance and zero individual profiling exposure.
-3. **Macro Skills Gap & Industry Supply Index**: Tracks emerging demand trends across telecom domains (5G, Satellite, Cyber, Fiber) comparing job postings to qualified labor supply.
-4. **Institutional Donor & Government Portals**: Dedicated high-level dashboards for development financiers, regulators (NCC), and ministries to monitor workforce investments and verified outcomes.
-5. **B2B Intelligence APIs & Enterprise Licensing**: Secure, rate-limited APIs for corporate subscribers, researchers, and government agencies.
+1. **Sectoral Workforce Atlas (Strategy Section 18)**: High-density interactive geographic heatmap displaying verified skills supply, training capacity, and regional talent distribution across Nigeria's 36 states, the FCT, and 6 geopolitical zones.
+2. **Privacy-Preserving Aggregator Engine (Strategy Section 17)**: Pre-computed statistical aggregates with dynamic k-anonymity suppression ($k \ge 10$ minimum cell threshold) and cross-slice suppression ensuring complete NDPA compliance and zero individual profiling exposure.
+3. **Macro Skills Gap & Industry Supply Index**: Tracks emerging demand trends across the 6 core telecom/ICT pathways (RF/RAN & 4G/5G, Fibre & Transmission, IP/NOC, Field Deployment & Power, Cybersecurity/Cloud, Network Automation & Applied AI) comparing employer vacancies to verified labor supply.
+4. **Government, Donor & DBI Operations Cockpits (Strategy Section 8)**:
+   - **Government Cockpit**: Aggregate skills distribution maps, regional shortages, cohort outcomes, and privacy-safe exports.
+   - **Donor / NGO Cockpit**: Programme design, eligibility targeting, funding milestones, beneficiary progress, and auditable training-to-employment impact reporting.
+   - **DBI Operations Cockpit**: Role taxonomy governance, assessment bank oversight, credential issuance audit, moderation, employer contracts, campaigns, and KPI tracking across all 8 dimensions in Strategy Section 20.
+5. **B2B Intelligence APIs & Institutional Licensing**: Secure, rate-limited, auditable APIs for licensed enterprise subscribers, regulators, and research partners.
 
 ---
 
 # For Backend API (`/backend` - NestJS Microservice Candidate)
 
 - **Features**
-  - **Analytics Aggregation Pipeline**: Nightly scheduled materialized rollups calculating skill supply by state, local government area (LGA), competency level, and industry.
-  - **NDPA k-Anonymity & Differential Privacy Engine**: Automatically suppresses or masks any query results where cell size is less than the defined safety threshold (k = 10).
-  - **Macro Skills Index Service**: Calculates national supply-versus-demand ratios, skill velocity, and average time-to-hire across sectors.
-  - **B2B Licensed Partner API**: API key authentication, tiered rate-limiting, and auditable data access logs for enterprise and government subscribers.
-  - **Executive Report Generator**: Generates high-resolution PDF/Excel institutional reports with executive summaries and data visual charts.
+  - **Analytics Aggregation Pipeline**: Scheduled materialized rollups calculating verified vs. declared skill supply by state, geopolitical zone, occupation pathway, competency level, and evidence confidence.
+  - **NDPA k-Anonymity & Cross-Slice Suppression Engine (Strategy Section 17)**: Automatically suppresses or masks any query results or multi-dimensional slices where cell count is below the safety threshold ($k = 10$).
+  - **Macro Skills Index & KPI Engine (Strategy Section 20)**: Computes national supply-versus-demand ratios, measured competency gains after interventions, shortlist yield, time-to-hire, placement conversion, and 30/90-day retention metrics.
+  - **DBI Operations Governance API**: Back-office endpoints for managing taxonomy updates, credential audit trails, campaign performance, and institutional licensing contracts.
+  - **B2B Licensed Partner API**: Scoped API key authentication, tiered rate-limiting, and auditable data access logs for licensed institutional clients.
+  - **Executive Report Generator**: Generates privacy-safe PDF/CSV institutional reports with executive summaries and k-anonymity verification stamps.
 
 - **Endpoints**
-  - `GET /api/v1/workforceiq/overview` - High-level national metrics (total verified talent, top shortage areas, active training cohorts).
-  - `GET /api/v1/workforceiq/geo-density` - Geographic distribution of verified competencies grouped by State and Geopolitical Zone.
-  - `GET /api/v1/workforceiq/skill-shortages` - Industry deficit report comparing open vacancies against qualified candidate supply.
-  - `GET /api/v1/workforceiq/training-outcomes` - Longitudinal training ROI tracking employment conversion rates by institution/program.
-  - `POST /api/v1/workforceiq/reports/export` - Request asynchronous generation of institutional PDF/CSV labor market report.
-  - `GET /api/v1/b2b/v1/skills-index` - Dedicated authenticated B2B partner feed for licensed enterprise clients.
+  - `[ ]` `GET /api/v1/workforceiq/overview` - High-level national metrics (verified talent supply, top shortage areas, active sponsored cohorts, and Section 20 KPI summary).
+  - `[ ]` `GET /api/v1/workforceiq/geo-density` - Geographic distribution of verified competencies grouped by State and Geopolitical Zone (with $k \ge 10$ suppression).
+  - `[ ]` `GET /api/v1/workforceiq/skill-shortages` - Sectoral deficit report comparing open employer vacancies against verified and near-ready candidate supply.
+  - `[ ]` `GET /api/v1/workforceiq/training-outcomes` - Longitudinal training-to-employment ROI tracking competency gains and placement conversion rates by programme/cohort.
+  - `[ ]` `GET /api/v1/admin/operations/cockpit` - DBI Operations Cockpit summary covering taxonomy health, assessment bank metrics, credential issuance audits, and active institutional contracts.
+  - `[ ]` `POST /api/v1/workforceiq/reports/export` - Generate privacy-safe institutional PDF/CSV labor market and donor milestone reports.
+  - `[ ]` `GET /api/v1/b2b/v1/skills-index` - Dedicated authenticated B2B partner feed for licensed enterprise and government subscribers.
 
 - **Implement in Phases**
-  - **Phase 1: Materialized Rollups & Privacy Engine (Weeks 1-2)**
-    - Implement aggregation tables and cron-based background aggregation jobs in Redis/PostgreSQL.
-    - Build k-anonymity filter middleware and unit tests asserting that small cohorts are properly masked.
-  - **Phase 2: Geographic & Shortage APIs (Weeks 3-4)**
-    - Implement GeoJSON endpoints for Nigerian states and regional talent distributions.
-    - Build demand vs. supply index calculations.
-  - **Phase 3: B2B Licensing, API Keys & PDF Reports (Weeks 5-6)**
-    - Implement B2B API key provisioning and rate-limit metering.
-    - Automated report generation service for institutional partners.
+  - **Phase 1: Materialized Rollups, Drizzle Schemas & k-Anonymity Engine (Weeks 1-2)**
+    - Implement Drizzle ORM schemas (`backend/src/schema.ts`) and migrations for `workforce_aggregates`, `institutional_licenses`, `b2b_api_keys`, and `report_exports`.
+    - Build k-anonymity suppression guard ($k \ge 10$) and unit tests (`node --test`) asserting that small cells and complementary slices are masked.
+  - **Phase 2: Geographic Density, Shortage Index & DBI Operations APIs (Weeks 3-4)**
+    - Implement GeoJSON/state distribution endpoints, demand-vs-supply index calculations, and DBI Operations Cockpit endpoints.
+  - **Phase 3: Institutional Portals, B2B API Keys & Privacy-Safe Exports (Weeks 5-6)**
+    - Implement B2B API key provisioning, rate-limit metering, and privacy-safe PDF/CSV report generation for government and donor partners.
 
 ---
 
 # For Frontend (`/frontend` - Next.js)
 
 - **Features**
-  - **Sectoral Workforce Atlas**: Interactive map of Nigeria featuring drill-downs from national level to state/zone level with color-coded talent density.
-  - **Executive Macro Dashboard**: High-density analytics portal featuring Midnight Navy (`#10263B`) cards, Ocean Teal (`#128F8A`) trend lines, and Electric Mint (`#64DCD1`) highlights.
-  - **Skill Shortage Index Visualizer**: Bar charts and gap indicators comparing telecom operator job postings against available verified talent.
-  - **Institutional Report Builder**: Custom date range, regional filter, and sector selector with live chart previews and one-click PDF/CSV export.
+  - **Sectoral Workforce Atlas (`/analytics/atlas`)**: Interactive map of Nigeria featuring drill-downs from national level to geopolitical zone and state level with color-coded talent density and shortage alerts.
+  - **Executive Macro Dashboard (`/analytics/workforceiq`)**: High-density analytics portal featuring Midnight Navy (`#10263B`) cards, Ocean Teal (`#128F8A`) trend lines, Electric Mint (`#64DCD1`) highlights, and Warm Gold (`#D9AB60`) alerts.
+  - **Government & Donor Cockpits (`/portal/donor-government` — Strategy Section 8)**: Dedicated views for regulators (NCC) and ministries to inspect aggregate regional gaps, and for donors/NGOs to design funded cohorts, monitor milestones, and audit verified training-to-employment outcomes.
+  - **DBI Operations Cockpit (`/admin/operations` — Strategy Section 8)**: Internal operations command centre for role taxonomy management, assessment bank health, credential issuance moderation, employer contracts, and audit trails.
+  - **Institutional Report Builder (`/analytics/reports`)**: Custom date range, regional filter, and telecom pathway selector with live chart previews and one-click privacy-safe PDF/CSV export.
 
 - **Sub Features**
-  - Responsive charts powered by Recharts or Chart.js with dark/light executive themes.
-  - Filter by verified rating tiers (e.g. show only candidates with 4.0+ ratings).
-  - Fully accessible tooltips with clear data definitions for non-technical policymakers.
+  - Filter analytics by verification tier (Verified vs. Demonstrated vs. Declared) and occupation pathway.
+  - Explicit visual indicator when a regional slice is masked due to NDPA k-anonymity ($k < 10$) privacy protection.
+  - Accessible data tables and tooltips with clear definitions for non-technical policymakers.
 
 - **Pages**
-  - `/analytics/workforceiq` - Institutional intelligence home and key metrics overview.
-  - `/analytics/atlas` - Full-screen Sectoral Workforce Atlas geographic visualization.
-  - `/analytics/shortages` - National skill deficit and talent pipeline analysis.
-  - `/portal/donor-government` - Dedicated executive portal for government ministries, regulators (NCC), and development partners.
-  - `/analytics/reports` - Export center for government and donor milestone reports.
+  - `[ ]` `/analytics/workforceiq` - Institutional intelligence home and national supply/demand overview.
+  - `[ ]` `/analytics/atlas` - Full-screen Sectoral Workforce Atlas geographic visualization.
+  - `[ ]` `/analytics/shortages` - National skill deficit and talent pipeline analysis.
+  - `[ ]` `/portal/donor-government` - Dedicated executive cockpit for government ministries, regulators (NCC), and development finance / NGO partners.
+  - `[ ]` `/admin/operations` - DBI Operations Cockpit for platform governance, moderation, contracts, and KPI monitoring.
+  - `[ ]` `/analytics/reports` - Export center for privacy-safe government and donor milestone reports.
 
 - **Implement in Phases**
-  - **Phase 1: Macro Charts & Executive Dashboard Layout (Weeks 1-2)**
-    - Build dashboard grid, summary metric cards, and responsive chart containers.
-  - **Phase 2: Sectoral Workforce Atlas Geospatial Map (Weeks 3-4)**
-    - Integrate Nigerian state map SVG/GeoJSON with interactive click and hover states.
-  - **Phase 3: Report Generator & Polish (Weeks 5-6)**
-    - Build custom report filter drawer and export triggers.
-    - Final UX polish and high-resolution print stylesheet testing.
+  - **Phase 1: Macro Charts, KPI Cards & Executive Dashboard Layout (Weeks 1-2)**
+    - Build dashboard grid, Section 20 KPI summary cards, and accessible chart/table containers.
+  - **Phase 2: Sectoral Workforce Atlas, Government/Donor & DBI Operations Cockpits (Weeks 3-4)**
+    - Integrate Nigerian state/zone interactive map SVG/GeoJSON with k-anonymity masking states, plus `/portal/donor-government` and `/admin/operations`.
+    - Automated unit and Playwright browser tests.
+  - **Phase 3: Institutional Report Generator & Print Polish (Weeks 5-6)**
+    - Build custom report filter drawer, CSV/PDF export triggers, and high-resolution print stylesheets.
+
+# Implementation progress — 2026-11-16 (Strategy & Architecture Alignment)
+- Aligned `PLAN-0006` with `DBI_Skills_Network_Illustrated_Product_Strategy.txt` (Sections 3, 4, 8, 17, 18, 20, and Appendix A–B) and the Drizzle ORM / NestJS / Next.js stack:
+  - Added distinct coverage for the **Government Cockpit**, **Donor/NGO Cockpit**, and **DBI Operations Cockpit** (`/admin/operations`) as defined in Strategy Section 8.
+  - Added the 8 strategic KPI dimensions from Strategy Section 20 (supply quality, verified capability, competency gains, shortlist yield/time-to-hire, placement outcomes, revenue quality, 30/90-day retention, and privacy-safe regional outcomes) and reinforced $k \ge 10$ cell and cross-slice suppression.
 
