@@ -228,10 +228,28 @@ It establishes:
 - `[ ]` Legal/privacy review signs off the actual purposes, lawful bases, retention schedule, processor list, and external channels. Do not label the application 'NDPA compliant' solely because a consent checkbox exists.
 - `[ ]` Sprint gate for **23 November 2026**: evaluate only the acceptance criteria above and the remaining originally listed PLAN-0001 tasks; record any unmet work as an explicit follow-on, never silently mark a checklist complete.
 
-## Sequencing and open decisions
-1. P0: finish `UsersModule` + tenant guard/audit contracts, then browser auth/onboarding; verification document handling can be parallel only after RBAC/security primitives stabilize.
-2. P0: agree on PLAN-0002 Explorer handoff shape (token TTL, redemption and owner binding) before touching both repos.
-3. P1: approve the exact administrative permission matrix, retention policy, DPO/privacy signoff owner and privileged MFA upgrade path. No approval is assumed in this document.
+## Priority order and review scope
+
+The immediate target is working authentication and user onboarding by **Monday, 23 November 2026**. Execute the following in priority order; this sequence does not mark any item complete:
+
+1. **Restore API startup** — Resolve the validation-package loading issue, confirm a reproducible installation, and verify PostgreSQL and transactional email configuration.
+2. **Build shared UI components** — Provide reusable buttons, inputs, cards, notifications and form validation using the existing design tokens and accessibility requirements.
+3. **Build authentication screens** — Implement signup, email verification, login, password recovery and MFA, connected to the existing authentication APIs through the same-origin proxy.
+4. **Build goal-first talent onboarding** — Implement goal selection, basic profile details, career aspirations, and save-and-resume using the existing user APIs; verify remaining onboarding contracts, concurrency and integration requirements.
+5. **Build organization onboarding** — Implement institutional setup, team invitations and invitation acceptance, and entry into the organization workspace using the existing organization APIs.
+6. **Verify complete journeys** — Test authentication and onboarding on desktop and mobile, including permissions, accessibility, interrupted sessions and recovery. Write targeted tests alongside each implementation step; this final step verifies the combined experience.
+
+**Immediate implementation slice:** API startup -> authentication screens -> talent onboarding, supported by shared UI components.
+
+**Following priorities:** Complete organization management screens, privacy and communication preferences, secure verification-document upload/storage, and the DBI admin review queue. Preserve all existing PLAN-0001 acceptance and release gates; the onboarding target does not imply that these remaining items are complete or excluded from the plan.
+
+**Review and expansion:** This priority order is the current working sequence and **can be expanded or refined upon review** of implementation findings, dependencies, security/privacy requirements, stakeholder feedback and acceptance criteria. Record material scope or sequencing changes in this plan and the activity log; do not infer approval or completion from a review.
+
+## Open contracts and decisions
+
+1. Verify and finish remaining `UsersModule`, tenant-permission and audit contracts rather than rebuilding APIs already present. Existing user and verification APIs require integration and acceptance evidence.
+2. Agree the minimal PLAN-0002 Explorer handoff contract (token TTL, redemption, ownership binding and idempotency) before changing either side. Only the thin onboarding handoff is in scope; keep invalid/expired Explorer tokens from blocking normal signup.
+3. Confirm the administrative permission matrix, evidence retention, privacy-review owner and privileged MFA upgrade path. No approval is assumed in this document.
 
 # Implementation progress — 2026-11-19 (Management Status & Onboarding Target)
 
@@ -244,3 +262,10 @@ We plan to have user onboarding working by **Monday, 23 November 2026**.
 - **Priority**: Complete and integrate the authentication and goal-first user onboarding experience for this target. Preserve the existing acceptance and release gates.
 - **Report**: [Management Progress Report](../../docs/DBI_PROJECT_STATUS_2026-11-19.md).
 - **Status**: PLAN-0001 remains IN_PROGRESS. This records the user-confirmed delivery target and management wording; no implementation checklist or approval status is changed. Existing verification findings and remaining integration work still apply.
+
+# Implementation progress — 2026-11-19 (Priority Order & Review Flexibility)
+
+- Recorded the user-requested six-step priority order: restore API startup; build shared UI components; implement authentication screens; implement talent onboarding; implement organization onboarding; verify complete journeys.
+- Identified organization management, privacy/preferences, secure verification-document handling and admin review screens as following priorities, with existing acceptance gates retained.
+- Explicitly stated that the priority order can be expanded or refined upon review, with material changes logged.
+- Target remains Monday, 23 November 2026, for working user onboarding. PLAN-0001 remains IN_PROGRESS; no completion checkbox or approval status changed.
