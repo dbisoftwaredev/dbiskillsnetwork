@@ -11,7 +11,7 @@ IN_PROGRESS
 2026-10-31
 
 # Updated at
-2026-11-16
+2026-11-19
 
 # Owner
 JED
@@ -232,3 +232,15 @@ It establishes:
 1. P0: finish `UsersModule` + tenant guard/audit contracts, then browser auth/onboarding; verification document handling can be parallel only after RBAC/security primitives stabilize.
 2. P0: agree on PLAN-0002 Explorer handoff shape (token TTL, redemption and owner binding) before touching both repos.
 3. P1: approve the exact administrative permission matrix, retention policy, DPO/privacy signoff owner and privileged MFA upgrade path. No approval is assumed in this document.
+
+# Implementation progress — 2026-11-19 (Management Status & Onboarding Target)
+
+DBI Skills Network has moved from planning into active backend development, with key account, organization, security, and verification services underway.
+
+The frontend remains a preview page, with full user functionality and integration still pending. The project is currently at the foundational development stage, with major ecosystem features still ongoing.
+
+We plan to have user onboarding working by **Monday, 23 November 2026**.
+
+- **Priority**: Complete and integrate the authentication and goal-first user onboarding experience for this target. Preserve the existing acceptance and release gates.
+- **Report**: [Management Progress Report](../../docs/DBI_PROJECT_STATUS_2026-11-19.md).
+- **Status**: PLAN-0001 remains IN_PROGRESS. This records the user-confirmed delivery target and management wording; no implementation checklist or approval status is changed. Existing verification findings and remaining integration work still apply.
