@@ -29,9 +29,15 @@ export function readConfig(env: NodeJS.ProcessEnv = process.env) {
     throw new Error('SWAGGER_ENABLED must be true or false');
   }
   const environment = env.NODE_ENV?.trim().toLowerCase() || 'development';
+  const rawPort = env.PORT?.trim();
+  const port = rawPort ? Number(rawPort) : 3001;
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error('PORT must be an integer between 1 and 65535');
+  }
+  const host = env.HOST?.trim() || (rawPort ? '0.0.0.0' : '127.0.0.1');
   return Object.freeze({
-    port: 3001,
-    host: '127.0.0.1',
+    port,
+    host,
     appOrigin: origin.origin,
     databaseUrl,
     accessTokenSecret,
