@@ -2,27 +2,27 @@
 PLAN-0002
 
 # Title
-Talent Profile, Competency Taxonomy & Digital Skills Passport Engine
+Talent Profile, 6-Pathway Telecom Taxonomy, Readiness Explorer & Digital Skills Passport (PILOT — Target: 26 Nov 2026)
 
 # Status
-DRAFT
+DRAFT (PILOT TARGET — Target: 26 Nov 2026)
 
 # Created at
 2026-10-31
 
 # Updated at
-2026-11-16
+2026-11-20
 
 # Owner
 JED
 
 # Related plan
-PLAN-0001 (Builds directly upon foundational Auth, User Identity, and Goal-First Talent Onboarding)
+PLAN-0001 (Builds directly upon foundational Auth, User Identity, and Goal-First Talent Onboarding); PLAN-0007 (Houses deferred post-pilot Credential Wallet file uploads, W3C VC v2.0 signing, CV parsing & headless PDF export)
 
 # Affected repos
 c:\laragon\www\dbiskillsnetwork
-- Backend: `/backend` (`TaxonomyModule`, `PassportModule`, `CredentialsModule`, `ExplorerModule`)
-- Frontend: `/frontend` (`/explorer`, `/talent/dashboard`, `/talent/profile/edit`, `/talent/passport`, `/talent/wallet`, `/p/[handle]`)
+- Backend: `/backend` (`TaxonomyModule`, `PassportModule`, `ExplorerModule`)
+- Frontend: `/frontend` (`/explorer`, `/talent/dashboard`, `/p/[handle]`)
 - Shared Specs / Contracts: `.agents` (Plans, Tests, OpenAPI schemas)
 
 # Approval
@@ -175,3 +175,32 @@ It delivers:
 - P0: taxonomy + Explorer contract + progressive talent profile + access-controlled read-only Passport (after PLAN-0001 identity).
 - P1: upload/issuer-validation workflow, private shares, correction and revocation.
 - P2: signed W3C VC/Open Badges interoperability after key-management and validator design approval. Do not advertise standards conformance before the signature and revocation tests pass.
+
+---
+
+# Pilot Scope (Target: Thu, 26 Nov 2026) & Trimmed Post-Pilot Features
+
+To keep the **30 November 2026 Month-End Pilot** lean and prevent AI agents from bloating `PLAN-0002`, only the deliverables below are executed during the November Pilot (**24–26 Nov 2026**). All other items are deferred to **`PLAN-0007`**.
+
+### Lean Pilot Deliverables (IN Scope for 26 Nov 2026)
+- **Backend (Jed)**:
+  - Seed the **6 Telecom/ICT domains**, ~20 core skills, and 4 pilot role benchmarks.
+  - `POST /api/v1/public/career-readiness-explorer` — stateless 5-question self-check for a target occupation returning a provisional readiness band, missing skills, and a short-lived one-use redemption token (`explorer.snapshot_created.v1`).
+  - `GET /api/v1/taxonomy/domains` & `GET /api/v1/taxonomy/skills`.
+  - `GET /api/v1/talent/profile/me` & `PATCH /api/v1/talent/profile/me` (including one-time Explorer snapshot redemption with explicit user confirmation).
+  - `POST /api/v1/passport/skills` & `DELETE /api/v1/passport/skills/:id` — stores skills with separate `evidenceTier` (`DECLARED` / `DEMONSTRATED` / `VERIFIED`), `confidence` (`VERIFIED` / `PROVISIONAL` / `INSUFFICIENT_EVIDENCE`), and nullable `proficiency` (`1.0–5.0`, null when unassessed) per `.agents/docs/CROSS_PLAN_CONTRACTS.md`.
+  - `GET /api/v1/passport/me`, `PATCH /api/v1/passport/visibility` (`PUBLIC`, `EMPLOYERS_ONLY`, `PRIVATE`), and `GET /api/v1/passport/public/:handle` (never exposes private contact/credential fields on public output).
+- **Frontend (Kate)**:
+  - `/explorer` — Public 1-page Career Readiness Explorer with *"Sign up to save your snapshot"* CTA linking into `/auth/signup`.
+  - `/talent/dashboard` — Lean Talent Command Centre displaying career goal, Explorer readiness snapshot, inline profile/skill editor (keeping `/talent/profile/edit` and `/talent/passport` lightweight or embedded tabs), and Passport share link.
+  - `/p/[handle]` — Public / Verified-Employer Digital Skills Passport Card with client-side QR code and distinct `DECLARED` vs. `VERIFIED` badges. Use browser `window.print()` print stylesheet for PDF save instead of a backend headless renderer.
+
+### Trimmed to `PLAN-0007` (Agents MUST NOT build in Pilot)
+- `POST /api/v1/talent/profile/cv-parse-preview` & `POST /api/v1/talent/profile/cv-parse-confirm` (AI/LLM CV parsing).
+- `POST /api/v1/passport/credentials`, `GET /api/v1/passport/credentials`, `POST /api/v1/passport/credentials/:id/correction-request`, `GET /api/v1/passport/credentials/:id/verify` (full file-upload Credential Wallet & correction queue).
+- `POST /api/v1/passport/share-links` & `POST /api/v1/passport/share-links/:id/revoke` (expiring share tokens).
+- W3C Verifiable Credentials v2.0 JSON-LD cryptographic signing (`GET /api/v1/passport/exports?format=vc-jsonld`) and server-side headless PDF rendering.
+
+# Implementation progress — 2026-11-20 (Pilot Scope Trim)
+- Trimmed `PLAN-0002` into a 3-day **Pilot target (Thu, 26 Nov 2026)** covering the 6-pathway taxonomy seed, public `/explorer`, progressive profile + declared/verified skills, and shareable `/p/[handle]` QR Passport Card with browser print-to-PDF.
+- Moved CV parsing, file-backed Credential Wallet uploads, expiring share tokens, correction workflows, W3C VC v2.0 signing, and headless PDF rendering to **`PLAN-0007`** (Post-Pilot). `PLAN-0002` remains `DRAFT (PILOT TARGET)`.

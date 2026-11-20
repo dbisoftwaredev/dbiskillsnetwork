@@ -2,27 +2,27 @@
 PLAN-0003
 
 # Title
-SkillVerify Assessment Runner & Practical Telecom Lab Evaluation System
+SkillVerify Pilot Diagnostic, Evaluator Sign-Off & Pilot Employer Shortlist Loop (PILOT — Target: 30 Nov 2026)
 
 # Status
-DRAFT
+DRAFT (PILOT TARGET — Target: 30 Nov 2026)
 
 # Created at
 2026-10-31
 
 # Updated at
-2026-11-16
+2026-11-20
 
 # Owner
 JED
 
 # Related plan
-PLAN-0001 (Auth & Orgs), PLAN-0002 (Skills Passport)
+PLAN-0001 (Auth & Orgs), PLAN-0002 (Skills Passport), PLAN-0005 (Pilot Employer Shortlist slice), PLAN-0007 (Deferred post-pilot simulations, endorsements & appeals queue)
 
 # Affected repos
 c:\laragon\www\dbiskillsnetwork
-- Backend: `/backend` (`AssessmentModule`, `EvaluationModule`, `ProctoringModule`)
-- Frontend: `/frontend` (`/talent/assessments`, `/evaluator/grading`)
+- Backend: `/backend` (`AssessmentModule`, `EvaluationModule`, thin Pilot `OpportunityModule`)
+- Frontend: `/frontend` (`/talent/assessments`, `/evaluator/dashboard`, `/talent/opportunities`, `/employer/jobs`)
 - Shared Specs / Contracts: `.agents` (Plans, Tests, OpenAPI schemas)
 
 # Approval
@@ -159,3 +159,36 @@ It delivers:
 - `[ ]` Spoofed client timestamps, score payloads, focus switches, expired sessions and duplicate grade events do not bypass server scoring or appeal controls.
 - `[ ]` All finalized signed outcomes are carried into PLAN-0002 with provenance and revocation support; PLAN-0004 reacts to the updated evidence instead of trusting client-provided scores.
 - Release physical lab grading before expanding to simulated practical certifications; live safe operations require DBI evaluator and safety-policy approval.
+
+---
+
+# Pilot Scope (Target: Mon, 30 Nov 2026) & Trimmed Post-Pilot Features
+
+To complete the end-to-end **30 November 2026 Pilot Demo** for PDBI (`Discover -> Assess -> Verify -> Match to Verified Employer`) without agent bloat, `PLAN-0003` is scoped to the slim deliverables below (**27–30 Nov 2026**), including one thin Pilot Employer Shortlist slice borrowed from `PLAN-0005` under `.agents/docs/CROSS_PLAN_CONTRACTS.md`.
+
+### Lean Pilot Deliverables (IN Scope for 30 Nov 2026)
+- **Backend (Jed)**:
+  - **Slim SkillVerify Diagnostic & Evaluator Sign-Off**:
+    - `GET /api/v1/assessments` — 2 seeded pilot telecom assessments (*Fibre Optic Splicing & OTDR Basics* and *RF / 5G RAN Fundamentals*).
+    - `POST /api/v1/assessments/:id/start` & `POST /api/v1/assessments/sessions/:sessionId/submit` — timed MCQ diagnostic; passing theory sets the Passport skill to `DEMONSTRATED` with `PROVISIONAL` confidence (never `VERIFIED` on theory alone).
+    - `GET /api/v1/assessments/sessions/:sessionId/result` — explainable sub-skill score breakdown.
+    - `POST /api/v1/evaluator/sessions/:sessionId/grade` — requires explicit `DBI_EVALUATOR` assignment check + safety-critical pass/fail sign-off; promotes skill on Passport to `VERIFIED` tier, `VERIFIED` confidence, and `1.0–5.0` proficiency rating.
+  - **Thin Pilot Opportunity & Employer Shortlist Loop** *(explicit Pilot slice from `PLAN-0005`)*:
+    - `GET /api/v1/opportunities` & `POST /api/v1/opportunities` — only `VERIFIED` employer organizations can publish pilot jobs.
+    - `POST /api/v1/opportunities/:id/apply` — free 1-click application with explicit candidate disclosure consent.
+    - `GET /api/v1/employer/opportunities/:id/applicants` — verified employer views applicants and their verified Passport badges.
+- **Frontend (Kate)**:
+  - `/talent/assessments`, `/talent/assessments/[id]/take`, `/talent/assessments/[id]/result` — simple MCQ runner + explainable scorecard.
+  - `/evaluator/dashboard` — simple 1-page assigned evaluator grading & safety-critical pass/fail sign-off form.
+  - `/talent/opportunities` (list pilot jobs + free 1-click apply) & `/employer/jobs` (post pilot job + view applicants' verified Passports).
+
+### Trimmed to `PLAN-0007` & Post-Pilot `PLAN-0005` (Agents MUST NOT build in Pilot)
+- No fullscreen browser lock, focus-loss telemetry, or proctoring/webcam infrastructure.
+- No interactive telecom simulation engines or work-sample file storage.
+- No supervisor endorsements (`POST /api/v1/assessments/endorsements`) or physical campus calendar bookings (`slots`/`bookings`).
+- No appeals queue (`/talent/assessments/[id]/appeal`, `/admin/assessments/appeals`).
+- No full `PLAN-0005` Kanban boards, side-by-side comparison matrices, Expert Circle, or Sponsored Cohorts.
+
+# Implementation progress — 2026-11-20 (Pilot Scope Trim)
+- Trimmed `PLAN-0003` to a 4-day **Pilot target (Mon, 30 Nov 2026)** combining 2 seeded MCQ diagnostics, `DBI_EVALUATOR` safety-gated Passport verification sign-off, and a thin verified-employer job/free-apply shortlist slice so PDBI can see the full end-to-end value loop on November 30.
+- Moved simulation engines, browser integrity telemetry, lab slot bookings, supervisor endorsements, and formal appeals queues to **`PLAN-0007`** (Post-Pilot). `PLAN-0003` remains `DRAFT (PILOT TARGET)`.

@@ -5,13 +5,13 @@ PLAN-0005
 OpportunityHub & Sponsored Workforce Development Cohort Exchange
 
 # Status
-DRAFT
+DRAFT (POST-PILOT — Scheduled After 30 Nov 2026 Pilot)
 
 # Created at
 2026-10-31
 
 # Updated at
-2026-11-16
+2026-11-20
 
 # Owner
 JED
@@ -49,6 +49,8 @@ Instead, MTN logs into **OpportunityHub & Sponsored Workforce Development Exchan
 ---
 
 # Summary
+
+> **POST-PILOT PLAN (Do NOT execute during the November 2026 Pilot Sprint):** This plan is scheduled for post-pilot execution after 30 November 2026. Only the thin pilot slices explicitly documented in PLAN-0002 (Career Readiness Explorer) and PLAN-0003 (basic verified-employer job post & 1-click free application) run in the November Pilot.
 
 PLAN-0005 implements **OpportunityHub** and the **Sponsored Workforce Development Exchange**, the primary commercial engine connecting talent to paid opportunities and providing enterprises/donors with structured cohort training pipelines.
 
@@ -177,3 +179,7 @@ It delivers:
 - `[ ]` Concurrent hires/seat allocation cannot exceed approved cohort capacity; paid training milestones cannot be marked disbursed from a UI-only flag.
 - `[ ]` Recruitment, sponsorship and expert activity writes are audit-logged with tenant, actor, event, cause and idempotency key; all external callbacks verify authenticity.
 - Release in slices: marketplace/free applications (P0), verified-employer discovery (P1), sponsor cohorts (P1), Expert Circle paid engagement and financial integrations (P2 with contracts approved).
+
+# Implementation progress — 2026-11-20 (Post-Pilot Scheduling)
+- Designated full `PLAN-0005` (Employer Cockpit, Candidate Shortlist Comparison, Expert Circle, Sponsored Workforce Cohorts, and WhatsApp alerts) as **Post-Pilot** (after **30 November 2026**).
+- A minimal verified-employer job post & 1-click free application loop is carried as an explicit thin Pilot slice inside `PLAN-0003` for the November 30 PDBI demo. `PLAN-0005` remains `DRAFT (POST-PILOT)`.

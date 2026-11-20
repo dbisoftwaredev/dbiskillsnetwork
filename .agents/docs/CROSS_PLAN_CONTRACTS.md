@@ -11,11 +11,11 @@ This contract harmonizes the **six supplied PLAN-0001–0006 Markdown files** an
 | Canonical domain | Source of truth | Consumers | Required boundary |
 |---|---|---|---|
 | Identity, tenant RBAC, consent/preferences | PLAN-0001 | All plans | Server-side actor + tenant + capability checks; separate platform and workspace roles |
-| Explorer snapshots and skills taxonomy | PLAN-0002 | 0001, 0003–0006 | Expiring one-use handoff; taxonomy version IDs |
-| Passport evidence, shares and VC issuance | PLAN-0002 | 0003–0005 | Public/verified-employer/private field scope; signature and revocation checks |
-| Assessment definitions, attempts, human safety signoffs | PLAN-0003 | 0002, 0004, 0005 | Only assigned DBI evaluators may finalize; signed evidence event |
+| Explorer snapshots and skills taxonomy | PLAN-0002 | 0001, 0003–0007 | Expiring one-use handoff; taxonomy version IDs |
+| Passport evidence, shares and VC issuance | PLAN-0002 / PLAN-0007 | 0003–0005 | Public/verified-employer/private field scope; signature and revocation checks in PLAN-0007 |
+| Assessment definitions, attempts, human safety signoffs | PLAN-0003 / PLAN-0007 | 0002, 0004, 0005 | Only assigned DBI evaluators may finalize; signed evidence event; simulations & appeals in PLAN-0007 |
 | Role benchmarks, suitability and Moodle sync | PLAN-0004 | 0005, 0006 | Explainable, versioned role-specific scores; learning is not verified practice |
-| Jobs, applications, sponsor cohorts and expert engagements | PLAN-0005 | 0004, 0006 | Candidate consent; verified employer; free application; auditable cohorts |
+| Jobs, applications, sponsor cohorts and expert engagements | PLAN-0005 *(Pilot slice in 0003)* | 0004, 0006 | Candidate consent; verified employer; free application; auditable cohorts |
 | Disclosure-approved aggregate releases | PLAN-0006 | Institutional users/API clients | No individual discovery; small cell + composition/differencing defenses |
 
 ## Core contract vocabulary
@@ -58,10 +58,11 @@ Every event requires `event_id`, `schema_version`, `occurred_at` (UTC), `produce
 
 ## Release gates
 
-- **Gate A — PLAN-0001 foundation (23 Nov 2026 target)**: identity, organization membership/verification and goal-first onboarding user journeys pass security, accessibility and end-to-end checks on `dev`. PLAN-0002 Explorer can be released as a narrow contract slice.
-- **Gate B — Passport/SkillVerify**: taxonomy stable, private share controls, evaluator-signed assessment evidence and revocation/appeals tested.
-- **Gate C — CareerGPS/OpportunityHub**: deterministic benchmark math validated by DBI specialists, Moodle data provenance correct, employer consent/permission and free applications proven.
-- **Gate D — WorkforceIQ institutional availability**: aggregate release approved by data steward/privacy owner; cross-slice attacks tested; report/API licensing and keys scoped; documented denominators and coverage.
+- **Gate A — PLAN-0001 foundation (23 Nov 2026 Pilot Target)**: identity, organization membership/verification and goal-first onboarding user journeys pass security, accessibility and end-to-end checks on `dev`. PLAN-0002 Explorer can be released as a narrow contract slice.
+- **Gate B-Pilot — Month-End Pilot (30 Nov 2026 Pilot Target)**: lean PLAN-0002 (6-pathway taxonomy, Explorer, Passport & QR view) + lean PLAN-0003 (2 telecom MCQ diagnostics, assigned `DBI_EVALUATOR` safety sign-off, and thin verified-employer job post & 1-click free apply loop) pass end-to-end Pilot checks on `dev`.
+- **Gate B-Full — Post-Pilot Deepening (`PLAN-0007`)**: S3/MinIO object storage, W3C VC v2.0 issuer signing and revocation, confirmed CV extraction, headless PDF export, telecom simulations, appeals queue, and Redis/SMS/WhatsApp dispatchers tested and approved.
+- **Gate C — Post-Pilot CareerGPS & Full OpportunityHub (`PLAN-0004` / `PLAN-0005`)**: deterministic benchmark math validated by DBI specialists, Moodle data provenance correct, employer consent/permission, sponsored cohorts, Expert Circle vetting and free applications proven.
+- **Gate D — Post-Pilot WorkforceIQ (`PLAN-0006`)**: aggregate release approved by data steward/privacy owner; cross-slice attacks tested; report/API licensing and keys scoped; documented denominators and coverage.
 
 ## External standards to verify at implementation
 

@@ -5,13 +5,13 @@ PLAN-0004
 CareerGPS Role Readiness, Interactive Competency Radar & LMS Bridge
 
 # Status
-DRAFT
+DRAFT (POST-PILOT — Scheduled After 30 Nov 2026 Pilot)
 
 # Created at
 2026-10-31
 
 # Updated at
-2026-11-16
+2026-11-20
 
 # Owner
 JED
@@ -51,6 +51,8 @@ Zainab works in telecom customer support in Kano. She wants to transition into a
 ---
 
 # Summary
+
+> **POST-PILOT PLAN (Do NOT execute during the November 2026 Pilot Sprint):** This plan is scheduled for post-pilot execution after 30 November 2026. Only the thin pilot slices explicitly documented in PLAN-0002 (Career Readiness Explorer) and PLAN-0003 (basic verified-employer job post & 1-click free application) run in the November Pilot.
 
 PLAN-0004 implements **CareerGPS** and **SkillBridge**, the platform's guidance and learning connectivity engines.
 
@@ -164,3 +166,6 @@ It delivers:
 - `[ ]` Tenant/privacy tests prohibit display of learner grades to unauthorised employers and prevent opt-out candidates from appearing in employer discovery.
 - `[ ]` Provide accessible table equivalents for radar/animation; avoid motion-heavy default UX on low-data devices.
 - Phase the release: deterministic engine and mappings (P0), Moodle integration (P1), optional AI coaching/advanced adjacency graph (P2) after domain validation.
+
+# Implementation progress — 2026-11-20 (Post-Pilot Scheduling)
+- Designated `PLAN-0004` as **Post-Pilot** (execution begins after the **30 November 2026** Pilot completes) so Jed and Kate's AI agents do not build interactive SVG radars, 6-factor scoring formulas, AI Career Coach drawers, or Moodle LMS sync during the 10-day Pilot sprint. `PLAN-0004` remains `DRAFT (POST-PILOT)`.
