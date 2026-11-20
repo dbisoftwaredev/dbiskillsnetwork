@@ -5,13 +5,13 @@ PLAN-0006
 WorkforceIQ Macro Labor Intelligence & Sectoral Workforce Atlas
 
 # Status
-DRAFT
+DRAFT (POST-PILOT — Scheduled After 30 Nov 2026 Pilot)
 
 # Created at
 2026-10-31
 
 # Updated at
-2026-11-16
+2026-11-20
 
 # Owner
 JED
@@ -52,6 +52,8 @@ Crucially, this intelligence must respect citizen privacy under the Nigeria Data
 ---
 
 # Summary
+
+> **POST-PILOT PLAN (Do NOT execute during the November 2026 Pilot Sprint):** This plan is scheduled for post-pilot execution after 30 November 2026. Only the thin pilot slices explicitly documented in PLAN-0002 (Career Readiness Explorer) and PLAN-0003 (basic verified-employer job post & 1-click free application) run in the November Pilot.
 
 PLAN-0006 implements **WorkforceIQ**, the institutional, regulatory, and B2B labor intelligence engine of the DBI Skills Network.
 
@@ -163,3 +165,6 @@ It delivers:
 - `[ ]` Dashboards communicate uncertainty, suppressed groups, sample bias, lag and missing outcomes; use accessible map alternatives and avoid red/green alone as the meaning carrier.
 - `[ ]` Downstream PLAN-0001–0005 event definitions and consent policy have been signed off by data stewards before public/partner release.
 - Roll out in this order: internal aggregate quality dashboard -> governed state/zone atlas -> authorized institutional reporting -> licensed partner API, **after** privacy impact and contract review.
+
+# Implementation progress — 2026-11-20 (Post-Pilot Scheduling)
+- Designated `PLAN-0006` (WorkforceIQ GeoJSON Atlas, Government/Donor Cockpits, DBI Operations Cockpit, and B2B Licensed Intelligence APIs) as **Post-Pilot** (after **30 November 2026**) so November engineering remains strictly focused on the Pilot user loop. `PLAN-0006` remains `DRAFT (POST-PILOT)`.

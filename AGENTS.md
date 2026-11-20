@@ -21,27 +21,35 @@ All operational rules, serial logs, model handoff guides, and numbered implement
 - **[External Review Notes (`docs/DBI_PLAN_REVIEW_2026-11-16.md`)](./docs/DBI_PLAN_REVIEW_2026-11-16.md)** — Scope, key corrections and remaining approvals.
 
 ### Implementation Plans (`.agents/plans/`)
-1. **[`PLAN-0001`: Foundational Identity, Multi-Tenant Organization Management & Authentication Engine](./.agents/plans/PLAN-0001-dbi-skills-network.md)** — **`IN_PROGRESS`** *(Current Primary Focus)*
-2. **[`PLAN-0002`: Talent Profile, Competency Taxonomy & Digital Skills Passport Engine](./.agents/plans/PLAN-0002-skills-passport-engine.md)** — `DRAFT` *(Covers Talent Pre-Signup Explorer & Profile Onboarding)*
-3. **[`PLAN-0003`: SkillVerify Assessment Runner & Practical Telecom Lab Evaluation System](./.agents/plans/PLAN-0003-skillverify-assessment-engine.md)** — `DRAFT`
-4. **[`PLAN-0004`: CareerGPS Role Readiness, Interactive Competency Radar & LMS Bridge](./.agents/plans/PLAN-0004-careergps-radar-lms-bridge.md)** — `DRAFT`
-5. **[`PLAN-0005`: OpportunityHub & Sponsored Workforce Development Cohort Exchange](./.agents/plans/PLAN-0005-opportunityhub-sponsored-cohorts.md)** — `DRAFT`
-6. **[`PLAN-0006`: WorkforceIQ Macro Labor Intelligence & Sectoral Workforce Atlas](./.agents/plans/PLAN-0006-workforceiq-macro-intelligence.md)** — `DRAFT`
+
+#### Track A — Month-End Pilot Plans (Hard Deadline: Monday, 30 November 2026)
+1. **[`PLAN-0001`: Foundational Identity, Goal-First Onboarding & Organization Verification](./.agents/plans/PLAN-0001-dbi-skills-network.md)** — **`IN_PROGRESS`** *(Target: **Mon, 23 Nov 2026** — Backend complete on `dev`; Frontend UI + live DB migration remaining)*
+2. **[`PLAN-0002`: Talent Profile, 6-Pathway Telecom Taxonomy, Readiness Explorer & Digital Skills Passport](./.agents/plans/PLAN-0002-skills-passport-engine.md)** — `DRAFT (PILOT TARGET)` *(Target: **Thu, 26 Nov 2026** — Lean Taxonomy, Explorer, Profile & Shareable QR Passport)*
+3. **[`PLAN-0003`: SkillVerify Pilot Diagnostic, Evaluator Sign-Off & Pilot Employer Shortlist Loop](./.agents/plans/PLAN-0003-skillverify-assessment-engine.md)** — `DRAFT (PILOT TARGET)` *(Target: **Mon, 30 Nov 2026** — Lean MCQ Diagnostic, Assigned Evaluator Safety Sign-Off & Thin Employer Job/Apply Loop)*
+
+#### Track B — Post-Pilot Expansion Plans (After 30 November 2026)
+4. **[`PLAN-0004`: CareerGPS Role Readiness, Interactive Competency Radar & LMS Bridge](./.agents/plans/PLAN-0004-careergps-radar-lms-bridge.md)** — `DRAFT (POST-PILOT)` *(CareerGPS Radar, 6-Factor Readiness, AI Coach & Moodle LMS Bridge)*
+5. **[`PLAN-0005`: OpportunityHub & Sponsored Workforce Development Cohort Exchange](./.agents/plans/PLAN-0005-opportunityhub-sponsored-cohorts.md)** — `DRAFT (POST-PILOT)` *(Full OpportunityHub, Sponsored Workforce Cohorts, Expert Circle & Multi-Channel Alerts)*
+6. **[`PLAN-0006`: WorkforceIQ Macro Labor Intelligence & Sectoral Workforce Atlas](./.agents/plans/PLAN-0006-workforceiq-macro-intelligence.md)** — `DRAFT (POST-PILOT)` *(WorkforceIQ Macro Intelligence, Sectoral Workforce Atlas & Government/Donor Portals)*
+7. **[`PLAN-0007`: Post-Pilot Deepening: W3C Verifiable Credentials v2.0, Confirmed CV Extraction, Proctored Simulations, Appeals & Object Storage](./.agents/plans/PLAN-0007-post-pilot-advanced-credentials-proctoring-storage.md)** — `DRAFT (POST-PILOT)` *(Advanced capabilities deferred out of the November Pilot)*
 
 ---
 
-## 2. Current Sprint Target & Priority
+## 2. Current Sprint Target, Anti-Bloat Rules & Team Split
 
-- **First Target**: **User Auth & New User Onboarding**
-- **Target Delivery**: **Monday, 23 November 2026**
-- **Scope**:
-  - Complete the remaining backend and frontend items in **[`PLAN-0001`](./.agents/plans/PLAN-0001-dbi-skills-network.md)**:
-    - **Backend (`/backend`)**: `UsersModule` (`/api/v1/users/me` & `/api/v1/users/me/communication-preferences` including goal-first onboarding state), organization verification submission (`POST /api/v1/organizations/:organizationId/verification/submit`), DBI admin verification review endpoints (`GET /api/v1/admin/organizations/verifications`, `PATCH /api/v1/admin/organizations/:organizationId/verification/decide`), and `audit_logs`. *(Note: Backend Phase 1 & 2 for `AuthModule` and `OrganizationModule` are already implemented.)*
-    - **Frontend (`/frontend`)**: Reusable UI primitives, authentication pages (`/auth/login`, `/auth/signup`, `/auth/verify-email`, `/auth/forgot-password`, `/auth/reset-password`, `/auth/mfa`), 3–5 minute Goal-First Talent Onboarding (`/onboarding/talent` — *"What would you like to achieve?"*), Organization Onboarding Wizard (`/onboarding/organization`), organization workspace views (`/organization/*`), NDPA consent dashboard (`/settings/privacy-consent`), and DBI admin verification queue (`/admin/verifications`).
-  - Connect into **[`PLAN-0002`](./.agents/plans/PLAN-0002-skills-passport-engine.md)** onboarding surfaces where appropriate:
-    - Public unauthenticated **Career Readiness Explorer** (`/explorer`, `POST /api/v1/public/career-readiness-explorer` — *"Value first, registration second"*) and initial **Talent Profile / Passport** handoff (`/talent/dashboard`, `/talent/profile/edit`).
-- After User Auth & Onboarding are complete and verified on `dev`, execution proceeds sequentially through the remaining feature plans (`PLAN-0002` through `PLAN-0006`).
-- **Cross-plan exception**: only the minimal PLAN-0002 Explorer/token/profile handoff required for the PLAN-0001 onboarding sprint may begin in parallel; keep an explicit contract and integration tests. Do not mark all PLAN-0002 features started or complete because the thin handoff shipped.
+- **Month-End Pilot Deadline (PDBI Target)**: **Monday, 30 November 2026**
+- **10-Day Pilot Schedule (20 Nov → 30 Nov 2026)**:
+  - **20–23 Nov (`PLAN-0001`)**: Complete Frontend auth, goal-first talent onboarding (`/onboarding/talent`), compact organization onboarding/workspace (`/onboarding/organization`, `/organization/dashboard`), privacy toggles (`/settings/privacy-consent`), DBI admin verification queue (`/admin/verifications`), and live PostgreSQL `db:migrate`.
+  - **24–26 Nov (`PLAN-0002`)**: Seed 6 Telecom/ICT domains + pilot benchmarks; deliver public `/explorer`, `/talent/dashboard`, declared/verified skills, and shareable `/p/[handle]` QR Passport (browser print-to-PDF).
+  - **27–30 Nov (`PLAN-0003`)**: Deliver 2 seeded telecom MCQ diagnostics, `DBI_EVALUATOR` safety-gated Passport verification sign-off (`/evaluator/dashboard`), and the thin verified-employer job post + 1-click free apply shortlist loop (`/talent/opportunities`, `/employer/jobs`), followed by end-to-end Pilot smoke verification.
+- **Strict Anti-Bloat Rules for All AI Agents**:
+  1. **Never pull Track B (`PLAN-0004`–`PLAN-0007`) features into Pilot branches** during the November 2026 sprint.
+  2. **Never add unapproved infrastructure**: no Redis queues, no S3/MinIO object storage or virus-scanning pipelines, no headless PDF browsers, no LLM/AI CV parsing or Career Coach engines, no WhatsApp/SMS provider SDKs, no proctoring/webcam telemetry, and no SVG/GeoJSON map libraries during the Pilot.
+  3. **Use Swagger (`/api/docs-json`) as the single contract** between Backend and Frontend.
+- **Jed (Full-Stack / Backend) vs. Kate (Frontend) Division of Labor**:
+  - **Jed (Full-Stack / Backend)**: Owns `/backend` NestJS modules, Drizzle schemas & migrations (`backend/src/schema.ts`), database seeds, Swagger contract publishing, and full-stack integration/deployment.
+  - **Kate (Frontend)**: Works strictly inside `/frontend` (App Router pages & components) against existing endpoints documented in `/api/docs-json` via the same-origin `/api/*` proxy, without modifying backend schemas or introducing a frontend `.env`.
+- After the **30 November 2026 Pilot** ships and passes validation on `dev`, execution proceeds sequentially through Track B (`PLAN-0004` through `PLAN-0007`).
 
 ---
 
@@ -132,7 +140,7 @@ your-feature-branch  ──►  dev  ──►  production
 
 ## 6. Cross-Plan Data Contracts, Privacy Boundaries & Sequencing (reviewed 2026-11-16)
 
-1. **Ownership is explicit**: PLAN-0001 controls identities, organization verification, roles, preference/legal-basis records and audit; PLAN-0002 controls Explorer, taxonomy, Passport and credential storage; PLAN-0003 controls assessments/rubrics/evaluator results; PLAN-0004 controls role suitability, pathway advice and Moodle bridge; PLAN-0005 controls jobs/applications/cohorts/Expert Circle; PLAN-0006 controls privacy-reviewed aggregate releases and B2B licensing. Consult `.agents/docs/CROSS_PLAN_CONTRACTS.md` before altering shared enums or user journeys.
+1. **Ownership is explicit**: PLAN-0001 controls identities, organization verification, roles, preference/legal-basis records and audit; PLAN-0002 controls Explorer, taxonomy, Passport and basic skill evidence; PLAN-0003 controls Pilot assessments/rubrics/evaluator results (plus the thin verified-employer job/apply Pilot slice); PLAN-0004 controls role suitability, pathway advice and Moodle bridge; PLAN-0005 controls full jobs/applications/cohorts/Expert Circle; PLAN-0006 controls privacy-reviewed aggregate releases and B2B licensing; PLAN-0007 controls deferred post-pilot deepening (S3/MinIO object storage, W3C VC v2.0 signing, confirmed CV parsing, telecom simulations, appeals queues, and Redis/SMS/WhatsApp dispatchers). Consult `.agents/docs/CROSS_PLAN_CONTRACTS.md` before altering shared enums or user journeys.
 2. **Three separate evidence concepts**: `DECLARED/DEMONSTRATED/VERIFIED` is a skill evidence tier; `VERIFIED/PROVISIONAL/INSUFFICIENT_EVIDENCE` is confidence; a nullable `1.0–5.0` proficiency applies only to a skill with sufficient rubric evidence. Moodle course completion alone **never** promotes skills to DBI-Verified.
 3. **Safety and privacy first**: platform roles must not be confused with organization roles; DBI evaluators require assignment-level permission. No bulk talent search without authorized verified employer and talent disclosure permission; no private credential fields in public Passport output; no small-cell statistics exposed in dashboards or exports. `k >= 10` is a minimum, not a legal safe harbor.
 4. **Keep candidate economics fair**: applications are free, payment does not influence suitability/ranking and any expert designation requires evidence-based human review. Financial collection or disbursement is not authorized by a workforce cohort UI plan alone.

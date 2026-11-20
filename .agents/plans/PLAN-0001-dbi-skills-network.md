@@ -2,7 +2,7 @@
 PLAN-0001
 
 # Title
-Foundational Identity, Multi-Tenant Organization Management & Authentication Engine
+Foundational Identity, Goal-First Onboarding & Organization Verification (PILOT — Target: 23 Nov 2026)
 
 # Status
 IN_PROGRESS
@@ -11,13 +11,13 @@ IN_PROGRESS
 2026-10-31
 
 # Updated at
-2026-11-19
+2026-11-20
 
 # Owner
 JED
 
 # Related plan
-None. (Serves as root foundational plan for PLAN-0002 through PLAN-0006)
+None. (Serves as root foundational plan for PLAN-0002 through PLAN-0007)
 
 # Affected repos
 c:\laragon\www\dbiskillsnetwork
@@ -84,10 +84,10 @@ It establishes:
   - `[x]` `POST /api/v1/auth/forgot-password` & `POST /api/v1/auth/reset-password` - Password recovery flow via Brevo transactional email.
   - `[x]` `POST /api/v1/auth/mfa/setup` & `POST /api/v1/auth/mfa/verify` - Email OTP multi-factor authentication enrollment and activation.
   - `[x]` `POST /api/v1/auth/mfa/challenge` - Complete sign-in with an email OTP when MFA is enabled.
-  - `[ ]` `GET /api/v1/users/me` - Retrieve current user profile, onboarding state/goal, consent records, and active organization memberships.
-  - `[ ]` `PATCH /api/v1/users/me` - Update personal details, primary goal (`FIND_JOB`, `GROW_INCOME`, `REACH_DREAM_OCCUPATION`, `BUILD_EXPERT_REPUTATION`), audience persona, and save-and-resume onboarding progress (including hydrating pre-signup Readiness Explorer results).
-  - `[ ]` `GET /api/v1/users/me/communication-preferences` - Retrieve transactional vs. marketing communication consent, channel preferences (`EMAIL`, `SMS`, `IN_APP`, `WHATSAPP`), and frequency settings (`IMMEDIATE`, `DAILY_DIGEST`, `WEEKLY_DIGEST`, `NONE`).
-  - `[ ]` `PATCH /api/v1/users/me/communication-preferences` - Update channel/frequency preferences and optional marketing opt-in/opt-out with audit logging.
+  - `[ ]` `GET /api/v1/users/me` - Retrieve current user profile, onboarding state/goal, consent records, and active organization memberships. *(Code merged to `dev` in commit `011b737` with policy unit tests; awaiting live DB/integration test evidence to mark `[x]`)*
+  - `[ ]` `PATCH /api/v1/users/me` - Update personal details, primary goal (`FIND_JOB`, `GROW_INCOME`, `REACH_DREAM_OCCUPATION`, `BUILD_EXPERT_REPUTATION`), audience persona, and save-and-resume onboarding progress (including hydrating pre-signup Readiness Explorer results). *(Code merged to `dev` in commit `011b737` with policy unit tests; awaiting live DB/integration test evidence to mark `[x]`)*
+  - `[ ]` `GET /api/v1/users/me/communication-preferences` - Retrieve transactional vs. marketing communication consent, channel preferences (`EMAIL`, `SMS`, `IN_APP`, `WHATSAPP`), and frequency settings (`IMMEDIATE`, `DAILY_DIGEST`, `WEEKLY_DIGEST`, `NONE`). *(Code merged to `dev` in commit `011b737` with policy unit tests; awaiting live DB/integration test evidence to mark `[x]`)*
+  - `[ ]` `PATCH /api/v1/users/me/communication-preferences` - Update channel/frequency preferences and optional marketing opt-in/opt-out with audit logging. *(Code merged to `dev` in commit `011b737` with policy unit tests; awaiting live DB/integration test evidence to mark `[x]`)*
   - `[x]` `GET /api/v1/organizations` - List organization workspaces for the authenticated user.
   - `[x]` `POST /api/v1/organizations` - Create a new organization workspace and assign creator as `OWNER`.
   - `[x]` `POST /api/v1/organizations/invitations/accept` - Accept an organization invitation for the invited email address.
@@ -96,9 +96,9 @@ It establishes:
   - `[x]` `POST /api/v1/organizations/:organizationId/members/invite` - Invite a team member with designated RBAC role (`ADMIN`, `RECRUITER`, `REVIEWER`).
   - `[x]` `GET /api/v1/organizations/:organizationId/members` - List organization members and their roles.
   - `[x]` `DELETE /api/v1/organizations/:organizationId/members/:userId` - Remove a member from the organization workspace.
-  - `[ ]` `POST /api/v1/organizations/:organizationId/verification/submit` - Upload CAC/institutional documents and submit organization for DBI review.
-  - `[ ]` `GET /api/v1/admin/organizations/verifications` - DBI admin endpoint: list pending organization verification requests.
-  - `[ ]` `PATCH /api/v1/admin/organizations/:organizationId/verification/decide` - DBI admin endpoint: approve or reject organization with human-reviewed reason and audit log entry.
+  - `[ ]` `POST /api/v1/organizations/:organizationId/verification/submit` - Upload CAC/institutional document metadata (`documentName`, `documentSha256`, optional `notes`) and submit organization for DBI review. *(Code merged to `dev` in commit `011b737` with policy unit tests; awaiting live DB/integration test evidence to mark `[x]`)*
+  - `[ ]` `GET /api/v1/admin/organizations/verifications` - DBI admin endpoint: list pending organization verification requests. *(Code merged to `dev` in commit `011b737` with policy unit tests; awaiting live DB/integration test evidence to mark `[x]`)*
+  - `[ ]` `PATCH /api/v1/admin/organizations/:organizationId/verification/decide` - DBI admin endpoint: approve or reject organization with human-reviewed reason and audit log entry. *(Code merged to `dev` in commit `011b737` with policy unit tests; awaiting live DB/integration test evidence to mark `[x]`)*
 
 - **Implement in Phases**
   - **Phase 1: Project Initialization & Identity Domain (Weeks 1-2) — Completed on Backend**
@@ -269,3 +269,32 @@ We plan to have user onboarding working by **Monday, 23 November 2026**.
 - Identified organization management, privacy/preferences, secure verification-document handling and admin review screens as following priorities, with existing acceptance gates retained.
 - Explicitly stated that the priority order can be expanded or refined upon review, with material changes logged.
 - Target remains Monday, 23 November 2026, for working user onboarding. PLAN-0001 remains IN_PROGRESS; no completion checkbox or approval status changed.
+
+---
+
+# Pilot Anti-Bloat Guardrails & Jed vs. Kate Split (Target: 23 Nov 2026)
+
+To hit the **Monday, 23 Nov 2026** onboarding milestone and **Monday, 30 Nov 2026** Pilot deadline with a 2-person team (**Jed** = Full-Stack/Backend, **Kate** = Frontend), AI agents working on `PLAN-0001` **must** obey this trimmed Pilot cut:
+
+### What IS in the Pilot (`PLAN-0001`)
+- **Backend (Jed — merged to `dev` in commit `011b737`)**:
+  - `AuthModule`, `OrganizationModule`, `UsersModule`, `VerificationModule`, and `AuditService` with Drizzle migrations `0000`–`0005`.
+  - Remaining Pilot action for Jed: run `npm.cmd run db:migrate -w backend` on live PostgreSQL, seed an initial `DBI_ADMIN` account (with MFA), and verify Swagger (`/api/docs-json`) + live DB integration tests.
+- **Lean Frontend Screens (Kate — `/frontend` only, strictly against `/api/docs-json`)**:
+  - `/auth/login`, `/auth/signup`, `/auth/verify-email`, `/auth/forgot-password`, `/auth/reset-password`, `/auth/mfa`
+  - `/onboarding/talent` — single-page or compact 3-step card selecting primary goal (`FIND_JOB`, `GROW_INCOME`, `REACH_DREAM_OCCUPATION`, `BUILD_EXPERT_REPUTATION`), persona, and target occupation with save-and-resume via `PATCH /api/v1/users/me`.
+  - `/onboarding/organization` & `/organization/dashboard` — compact workspace view combining organization profile, member invite table, and CAC metadata verification submission (`POST /api/v1/organizations/:organizationId/verification/submit`). *(Note: `/organization/profile`, `/organization/members`, and `/organization/verification` may be rendered as tabs/sections inside `/organization/dashboard`—or share one layout—to halve frontend UI build effort for Kate.)*
+  - `/settings/privacy-consent` — simple preference toggles calling `GET`/`PATCH /api/v1/users/me/communication-preferences`.
+  - `/admin/verifications` — simple table calling `GET /api/v1/admin/organizations/verifications` with Approve / Reject + reason modal calling `PATCH /api/v1/admin/organizations/:organizationId/verification/decide`.
+
+### What is TRIMMED to `PLAN-0007` (Agents MUST NOT build in Pilot)
+- No S3/MinIO object storage, presigned uploads, or virus-scanning pipelines (use existing SHA-256 + `documentName` metadata endpoint).
+- No avatar/logo image cropper or inline PDF viewer library.
+- No Redis queues or external SMS/WhatsApp provider SDKs (keep preference toggles in DB; keep email via Brevo + in-app only).
+
+# Implementation progress — 2026-11-20 (Pilot Scope Trim & Backend Phase 3 Merge)
+- **Backend Phase 3 Implemented & Merged to `dev` (`011b737`)**:
+  - Added `UsersModule` (`GET`/`PATCH /api/v1/users/me`, `GET`/`PATCH /api/v1/users/me/communication-preferences`), `AuditService` (`audit_logs`), `VerificationModule` (`POST /api/v1/organizations/:organizationId/verification/submit`, `GET /api/v1/admin/organizations/verifications`, `PATCH /api/v1/admin/organizations/:organizationId/verification/decide`), `PlatformAdminGuard` (requires DB `DBI_ADMIN`/`SUPER_ADMIN` + MFA enabled), and Drizzle migrations `0004` and `0005`.
+  - Passed `npm.cmd run typecheck`, `npm.cmd test` (16 backend + 2 frontend tests), and `npm.cmd run build`; live PostgreSQL migration and integration tests remain pending before marking Phase 3 endpoints `[x]`.
+- **Pilot Scope Trim**:
+  - Moved heavy storage/virus-scan/cropper/PDF viewer/Redis/SMS-WhatsApp dispatchers out of the Pilot into **`PLAN-0007`** so Kate can ship the lean `/frontend` auth and onboarding UI by **Monday, 23 Nov 2026**. `PLAN-0001` remains `IN_PROGRESS`.
