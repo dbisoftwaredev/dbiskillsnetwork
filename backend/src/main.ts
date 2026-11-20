@@ -1,6 +1,8 @@
 import 'reflect-metadata';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import * as classTransformer from 'class-transformer';
+import * as classValidator from 'class-validator';
 import { AppModule } from './app.module';
 import { readConfig } from './config';
 import { setupSwagger } from './swagger';
@@ -14,6 +16,8 @@ async function bootstrap() {
     transform: true,
     whitelist: true,
     forbidNonWhitelisted: true,
+    validatorPackage: classValidator,
+    transformerPackage: classTransformer,
   }));
   app.enableShutdownHooks();
   await app.listen(config.port, config.host);
