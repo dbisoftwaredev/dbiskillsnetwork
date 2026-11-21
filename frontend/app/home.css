@@ -729,3 +729,20 @@ html:not(.js-motion) .route-ink { stroke-dashoffset: 0; }
 .hw-role { position: absolute; left: 14px; bottom: 12px; z-index: 2; margin: 0; font-size: 12.5px; font-weight: 500; letter-spacing: 0.01em; color: rgba(255, 255, 255, 0.92); }
 .hw-card { margin: 0; }
 .js-motion .h2[data-reveal] { transition-duration: 0.65s; transition-delay: 0ms; }
+
+/* Phones: the coloured part of every title starts on its own line */
+@media (max-width: 720px) {
+  .h2 em, .close-title em, .cm-title em { display: block; }
+}
+@media (max-width: 860px) {
+  .route-card h3 { font-size: 20px; margin-bottom: 4px !important; }
+  .route-card p { font-size: 14px; }
+  .route-stops li { grid-template-columns: 44px 1fr; gap: 14px; padding-bottom: 22px; }
+  .route-stops li .route-pin, .route-stops li.up .route-pin, .route-stops li.down .route-pin { width: 44px; height: 44px; font-size: 11.5px; }
+  .route-stops::before { left: 21px; }
+  .route-stops li .route-card, .route-stops li.up .route-card, .route-stops li.down .route-card { padding-top: 9px; }
+}
+@media (max-width: 720px) {
+  .eng h3, .tc h3 { font-size: 20px; }
+  .eng-art-wrap { height: 84px; margin-bottom: 12px; }
+}

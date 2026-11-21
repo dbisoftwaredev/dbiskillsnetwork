@@ -418,3 +418,6 @@
 }
 /* .ui main resets max-width, so the form's cap needs the higher specificity. */
 .ui main.ui-auth-body { max-width: 440px; width: 100%; margin-inline: auto; }
+@media (max-width: 720px) {
+  .ui h1 em, .ui-panel-title em { display: block; }
+}
