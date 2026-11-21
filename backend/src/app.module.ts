@@ -1,11 +1,33 @@
 import { Controller, Get, Module, ServiceUnavailableException } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiExcludeEndpoint, ApiOkResponse, ApiOperation, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthModule } from './auth/auth.module';
+import { readConfig } from './config';
 import { DatabaseService } from './database';
 import { DatabaseModule } from './database.module';
 import { OrganizationModule } from './organizations/organization.module';
 import { UsersModule } from './users/users.module';
 import { VerificationModule } from './verification/verification.module';
+
+@Controller()
+export class RootController {
+  @Get()
+  @ApiExcludeEndpoint()
+  welcome() {
+    const swaggerEnabled = readConfig().swaggerEnabled;
+    return {
+      service: 'DBI Skills Network API',
+      status: 'ok',
+      version: '1.0.0',
+      endpoints: {
+        health: '/api/v1/health',
+        readiness: '/api/v1/health/ready',
+      },
+      docs: swaggerEnabled
+        ? { swaggerUi: '/api/docs', openApiJson: '/api/docs-json' }
+        : null,
+    };
+  }
+}
 
 class HealthResponseDto {
   @ApiProperty({ example: 'ok' })
@@ -50,6 +72,6 @@ export class HealthController {
 
 @Module({
   imports: [DatabaseModule, AuthModule, OrganizationModule, UsersModule, VerificationModule],
-  controllers: [HealthController],
+  controllers: [RootController, HealthController],
 })
 export class AppModule {}

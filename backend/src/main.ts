@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { ValidationPipe } from '@nestjs/common';
+import { RequestMethod, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import * as classTransformer from 'class-transformer';
 import * as classValidator from 'class-validator';
@@ -10,7 +10,7 @@ import { setupSwagger } from './swagger';
 async function bootstrap() {
   const config = readConfig();
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix('api/v1', { exclude: [{ path: '/', method: RequestMethod.GET }] });
   setupSwagger(app);
   app.useGlobalPipes(new ValidationPipe({
     transform: true,
