@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('preview fits the viewport and journey navigation works', async ({ page }, testInfo) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Your skills.');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('young talent');
   await page.getByRole('link', { name: 'Explore the network' }).click();
   await expect(page).toHaveURL(/#journey$/);
   await expect(page.getByRole('heading', { name: 'Turn capability into possibility.' })).toBeInViewport();
