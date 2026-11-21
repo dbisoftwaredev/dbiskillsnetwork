@@ -1,4 +1,6 @@
 import { ArtSprite, Crest, EngineArt } from '../components/home/art';
+import { RotatingWord } from '../components/home/hero-live';
+import { KenteBand, KenteField, KenteSwatch } from '../components/home/kente';
 import { DepartureBoard } from '../components/home/board';
 import { HeroWall } from '../components/home/hero-wall';
 import { Motion } from '../components/home/motion';
@@ -54,7 +56,7 @@ const Arrow = ({ down = false }: { down?: boolean }) => (
 function SectionHead({ id, num, label, title, accent, sub, light = false }: { id: string; num: string; label: string; title: string; accent: string; sub?: string; light?: boolean }) {
   return (
     <div className={`sh${light ? ' sh-light' : ''}`}>
-      <p className="sh-label" data-reveal><span>{num}</span>{label}</p>
+      <p className="sh-label" data-reveal><KenteSwatch seed={Number(num)} /><span>{num}</span>{label}</p>
       <h2 id={id} className="h2" data-reveal>{title} <em>{accent}</em></h2>
       {sub ? <p className="sub" data-reveal>{sub}</p> : null}
     </div>
@@ -95,7 +97,7 @@ export default function Home() {
               <h1 id="headline" className="display hero-title">
                 <span className="ln"><span>Where Africa’s</span></span>
                 <span className="ln"><span>young talent gets</span></span>
-                <span className="ln"><span><em className="accent">seen.</em></span></span>
+                <span className="ln"><span><em className="accent"><RotatingWord /></em></span></span>
               </h1>
               <p className="lead">
                 The talent hub built in Africa, for Africa’s digital generation. Prove what you can do, learn exactly what
@@ -111,6 +113,7 @@ export default function Home() {
           </div>
         </section>
 
+        <KenteBand seed={11} />
         {/* How it works */}
         <section id="journey" className="sec sec-white" aria-labelledby="journey-heading">
           <div className="wrap">
@@ -151,6 +154,7 @@ export default function Home() {
             </div>
           </div>
         </section>
+
 
         {/* Career readiness */}
         <section id="careergps" className="sec sec-white" aria-labelledby="gps-heading">
@@ -208,6 +212,7 @@ export default function Home() {
           </div>
         </section>
 
+        <KenteBand seed={23} />
         {/* Organizations */}
         <section id="organizations" className="sec uv-sec" aria-labelledby="org-heading">
           <div className="wrap uv-grid">
@@ -238,7 +243,9 @@ export default function Home() {
         </section>
 
         {/* Join */}
+        <KenteBand seed={37} />
         <section className="close" aria-labelledby="cta-heading">
+          <KenteField className="close-weave" seed={9} rows={36} />
           <div className="wrap close-in">
             <FaceOrbit />
             <h2 id="cta-heading" className="display close-title" data-reveal>Your skills. Your reputation. <em>Your next opportunity.</em></h2>

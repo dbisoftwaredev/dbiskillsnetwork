@@ -1,77 +1,44 @@
-// Hero: three drifting columns of large portrait cards of African talent. People first, minimal chrome.
-// Personas are illustrative; photos are Unsplash stand-ins.
+// Hero: three drifting columns of large photos of young African talent. Photos only, with a
+// single role label each, to keep the space calm. Photos are Unsplash stand-ins.
 
-type Card =
-  | { kind: 'person'; photo: string; name: string; track: string; base: string; level: 'Declared' | 'Demonstrated'; no: string }
-  | { kind: 'stamp'; word: string; top: string; note: string }
-  | { kind: 'ready'; pct: number; role: string };
+type Person = { photo: string; role: string; alt: string };
 
-const COLUMNS: Card[][] = [
+const COLUMNS: Person[][] = [
   [
-    { kind: 'person', photo: 'y-ada', name: 'Ada', track: 'Network engineering', base: 'Lagos', level: 'Demonstrated', no: '0001' },
-    { kind: 'person', photo: 'y-kwame', name: 'Kwame', track: 'Software engineering', base: 'Accra', level: 'Demonstrated', no: '0186' },
-    { kind: 'stamp', word: 'Verified', top: 'Cloud fundamentals', note: 'Assessed · signed' },
-    { kind: 'person', photo: 'y-zuri', name: 'Zuri', track: 'UI/UX design', base: 'Nairobi', level: 'Declared', no: '0233' },
+    { photo: 'y-ada', role: 'Network engineering', alt: 'A young woman smiling' },
+    { photo: 'y-kwame', role: 'Software engineering', alt: 'A young man holding a laptop covered in developer stickers' },
+    { photo: 'y-zuri', role: 'UI/UX design', alt: 'A young woman with headphones working at a computer' },
+    { photo: 'y-sipho', role: 'Digital content', alt: 'A young man recording at a microphone' },
   ],
   [
-    { kind: 'person', photo: 'y-tobi', name: 'Tobi', track: 'Frontend development', base: 'Ibadan', level: 'Demonstrated', no: '0351' },
-    { kind: 'ready', pct: 72, role: 'Cloud Engineer' },
-    { kind: 'person', photo: 'y-fatima', name: 'Fatima', track: 'Data analytics', base: 'Kano', level: 'Declared', no: '0274' },
-    { kind: 'person', photo: 'y-sipho', name: 'Sipho', track: 'Digital content', base: 'Johannesburg', level: 'Declared', no: '0297' },
+    { photo: 'y-tobi', role: 'Frontend development', alt: 'A young man holding a laptop' },
+    { photo: 'y-fatima', role: 'Data analytics', alt: 'A young woman smiling at her laptop' },
+    { photo: 'y-emeka', role: 'Cloud support', alt: 'A young man typing on a laptop' },
+    { photo: 'y-nia', role: 'Cybersecurity', alt: 'A young woman relaxing with a laptop' },
   ],
   [
-    { kind: 'person', photo: 'y-amaka', name: 'Amaka', track: 'Product management', base: 'Enugu', level: 'Declared', no: '0388' },
-    { kind: 'person', photo: 'y-david', name: 'David', track: 'Backend engineering', base: 'Kampala', level: 'Demonstrated', no: '0412' },
-    { kind: 'person', photo: 'y-nia', name: 'Nia', track: 'Cybersecurity', base: 'Kigali', level: 'Demonstrated', no: '0129' },
-    { kind: 'person', photo: 'y-emeka', name: 'Emeka', track: 'Cloud support', base: 'Abuja', level: 'Demonstrated', no: '0263' },
+    { photo: 'y-amaka', role: 'Product management', alt: 'A young woman in glasses smiling' },
+    { photo: 'y-david', role: 'Backend engineering', alt: 'A young man laughing at his laptop' },
+    { photo: 'a-students', role: 'Student', alt: 'A student working on a laptop outdoors' },
+    { photo: 'a-creators', role: 'Game & content creation', alt: 'A young creator at a desk setup' },
   ],
 ];
 
-function CardView({ card, hidden }: { card: Card; hidden: boolean }) {
-  if (card.kind === 'person') {
-    return (
-      <article className="hw-card hw-person">
-        <img src={`/images/people/${card.photo}.webp`} alt={hidden ? '' : `${card.name}, illustrative ${card.track.toLowerCase()} talent`} width={900} height={1100}
-          loading={hidden ? 'lazy' : 'eager'} decoding="async" />
-        <div className="hw-meta">
-          <strong>{card.name}</strong>
-          <span>{card.track} · {card.base}</span>
-        </div>
-      </article>
-    );
-  }
-  if (card.kind === 'stamp') {
-    return (
-      <article className="hw-card hw-stampcard">
-        <span className="hw-seal mono"><b>{card.word}</b><small>{card.top}</small><small>{card.note}</small></span>
-        <p>Skills confirmed by DBI evaluators, recognised by employers across the continent.</p>
-      </article>
-    );
-  }
-  const r = 34;
-  const c = 2 * Math.PI * r;
-  return (
-    <article className="hw-card hw-ready">
-      <svg viewBox="0 0 80 80" aria-hidden="true">
-        <circle cx="40" cy="40" r={r} className="hw-ring-bg" />
-        <circle cx="40" cy="40" r={r} className="hw-ring" strokeDasharray={c} strokeDashoffset={c * (1 - card.pct / 100)} transform="rotate(-90 40 40)" />
-      </svg>
-      <strong>{card.pct}%</strong>
-      <span>ready for {card.role}</span>
-      <small className="mono">CareerGPS · illustrative</small>
-    </article>
-  );
-}
-
 export function HeroWall() {
   return (
-    <div className="hw" aria-label="Illustrative passport holders">
+    <div className="hw" aria-label="Young African talent across digital skills">
       {COLUMNS.map((col, i) => (
         <div key={i} className={`hw-col hw-col-${i}`}>
           <div className="hw-track">
             {[0, 1].map((copy) => (
               <div key={copy} className="hw-set" aria-hidden={copy === 1 ? true : undefined}>
-                {col.map((card, k) => <CardView key={k} card={card} hidden={copy === 1} />)}
+                {col.map((p) => (
+                  <figure key={p.photo} className="hw-card hw-person">
+                    <img src={`/images/people/${p.photo}.webp`} alt={copy === 1 ? '' : p.alt} width={900} height={1200}
+                      loading={copy === 1 ? 'lazy' : 'eager'} decoding="async" />
+                    <figcaption className="hw-role">{p.role}</figcaption>
+                  </figure>
+                ))}
               </div>
             ))}
           </div>
