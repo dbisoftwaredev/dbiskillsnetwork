@@ -49,7 +49,7 @@ export class AuthController {
 
   @Post('signup')
   @HttpCode(HttpStatus.ACCEPTED)
-  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @Throttle({ default: { limit: 25, ttl: 60_000 } })
   @ApiOperation({ summary: 'Register an account and send an email verification link' })
   @ApiAcceptedResponse({ type: MessageResponseDto })
   @ApiBadRequestResponse({ description: 'Invalid input or required consent is missing', type: ErrorResponseDto })
@@ -61,7 +61,7 @@ export class AuthController {
 
   @Post('complete-account-setup')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @Throttle({ default: { limit: 25, ttl: 60_000 } })
   @ApiOperation({ summary: 'Choose an individual or organization account after email verification' })
   @ApiOkResponse({ type: AuthTokensResponseDto })
   @ApiBadRequestResponse({ description: 'Invalid account type', type: ErrorResponseDto })
@@ -72,7 +72,7 @@ export class AuthController {
 
   @Post('google/challenge')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @Throttle({ default: { limit: 50, ttl: 60_000 } })
   @ApiOperation({ summary: 'Create a short-lived single-use nonce for Google sign-in' })
   @ApiOkResponse({ description: 'Single-use nonce for the Google Identity Services credential' })
   @ApiServiceUnavailableResponse({ description: 'Google sign-in is not configured', type: ErrorResponseDto })
@@ -82,7 +82,7 @@ export class AuthController {
 
   @Post('google')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @Throttle({ default: { limit: 25, ttl: 60_000 } })
   @ApiOperation({ summary: 'Sign in or sign up with a verified Google identity' })
   @ApiOkResponse({ schema: { oneOf: [
     { $ref: getSchemaPath(AuthTokensResponseDto) },
@@ -98,7 +98,7 @@ export class AuthController {
 
   @Post('verify-email')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @Throttle({ default: { limit: 50, ttl: 60_000 } })
   @ApiOperation({ summary: 'Verify an email address using its one-time token' })
   @ApiOkResponse({ type: EmailVerifiedResponseDto })
   @ApiBadRequestResponse({ description: 'Invalid token format', type: ErrorResponseDto })
@@ -109,7 +109,7 @@ export class AuthController {
 
   @Post('forgot-password')
   @HttpCode(HttpStatus.ACCEPTED)
-  @Throttle({ default: { limit: 3, ttl: 60_000 } })
+  @Throttle({ default: { limit: 15, ttl: 60_000 } })
   @ApiOperation({ summary: 'Request a password reset email' })
   @ApiAcceptedResponse({ type: MessageResponseDto, description: 'Same response whether or not the account exists' })
   @ApiBadRequestResponse({ description: 'Invalid email address', type: ErrorResponseDto })
@@ -119,7 +119,7 @@ export class AuthController {
 
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @Throttle({ default: { limit: 25, ttl: 60_000 } })
   @ApiOperation({ summary: 'Set a new password using a one-time reset token' })
   @ApiOkResponse({ schema: { example: { passwordReset: true } } })
   @ApiBadRequestResponse({ description: 'Invalid input or password does not meet requirements', type: ErrorResponseDto })
@@ -130,7 +130,7 @@ export class AuthController {
 
   @Post('signin')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @Throttle({ default: { limit: 25, ttl: 60_000 } })
   @ApiOperation({ summary: 'Sign in with email and password' })
   @ApiOkResponse({
     description: 'Returns session tokens, an account setup token, or an email OTP challenge',
@@ -153,7 +153,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Throttle({ default: { limit: 3, ttl: 60_000 } })
+  @Throttle({ default: { limit: 15, ttl: 60_000 } })
   @ApiOperation({ summary: 'Start email OTP MFA enrollment for the authenticated account' })
   @ApiOkResponse({ type: MfaChallengeResponseDto })
   @ApiConflictResponse({ description: 'Email OTP MFA is already enabled', type: ErrorResponseDto })
@@ -167,7 +167,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @Throttle({ default: { limit: 25, ttl: 60_000 } })
   @ApiOperation({ summary: 'Confirm the email OTP to enable MFA' })
   @ApiOkResponse({ type: MfaEnabledResponseDto })
   @ApiBadRequestResponse({ description: 'Invalid input', type: ErrorResponseDto })
@@ -179,7 +179,7 @@ export class AuthController {
 
   @Post('mfa/challenge')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @Throttle({ default: { limit: 25, ttl: 60_000 } })
   @ApiOperation({ summary: 'Complete sign-in using an emailed MFA code' })
   @ApiOkResponse({ type: AuthTokensResponseDto })
   @ApiBadRequestResponse({ description: 'Invalid input', type: ErrorResponseDto })
@@ -190,7 +190,7 @@ export class AuthController {
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 20, ttl: 60_000 } })
+  @Throttle({ default: { limit: 100, ttl: 60_000 } })
   @ApiOperation({ summary: 'Rotate a refresh token and issue a new access token' })
   @ApiOkResponse({ type: AuthTokensResponseDto })
   @ApiBadRequestResponse({ description: 'Invalid input', type: ErrorResponseDto })
@@ -202,7 +202,7 @@ export class AuthController {
 
   @Post('signout')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 20, ttl: 60_000 } })
+  @Throttle({ default: { limit: 100, ttl: 60_000 } })
   @ApiOperation({ summary: 'Revoke a refresh token' })
   @ApiOkResponse({ type: SignedOutResponseDto })
   @ApiBadRequestResponse({ description: 'Invalid input', type: ErrorResponseDto })
