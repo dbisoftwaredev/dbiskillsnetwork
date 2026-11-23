@@ -6,7 +6,7 @@ import { ReadinessExplorer } from '../components/home/readiness';
 // illustrative personas, never real members or results.
 const img = (name: string) => `/images/people/${name}.webp`;
 
-const HEADLINE = 'Get hired for what you can actually do.';
+const HEADLINE = "Africa's home for discovering skills, talent and opportunities.";
 
 const FACES = [
   { photo: 'y-ada', alt: 'A smiling young woman', role: 'Data analyst', status: 'Readiness 64%', lift: 56 },

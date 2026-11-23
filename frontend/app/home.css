@@ -46,9 +46,9 @@
 .nav-signin { font-size: 14px; font-weight: 500; text-decoration: none; padding: 10px 12px; }
 
 /* Hero */
-.hero { padding: 88px 0 72px; }
+.hero { padding: 112px 0 72px; }
 .hero-copy { max-width: 920px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 22px; }
-.hero h1 { font-weight: 600; font-size: clamp(44px, 6.4vw, 88px); line-height: 1; letter-spacing: -0.045em; max-width: 14ch; }
+.hero h1 { font-weight: 600; font-size: clamp(32px, 4.5vw, 52px); line-height: 1; letter-spacing: -0.045em; max-width: 100%; text-wrap: balance; }
 .lead { font-size: 19px; line-height: 1.55; color: var(--muted); max-width: 34em; }
 .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
 
@@ -180,7 +180,8 @@
 @media (max-width: 600px) {
   .wrap { padding: 0 20px; }
   .lx { font-size: 15px; }
-  .hero { padding: 56px 0 48px; }
+  .hero { padding: 72px 0 48px; }
+  .hero h1 { width: calc(100vw - 24px); max-width: none; font-size: clamp(18px, 6vw, 32px); text-wrap: balance; }
   .lead { font-size: 17px; }
   .actions { width: 100%; }
   .actions .btn { flex: 1 1 100%; }
