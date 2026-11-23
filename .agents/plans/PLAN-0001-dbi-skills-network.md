@@ -292,6 +292,19 @@ To hit the **Monday, 23 Nov 2026** onboarding milestone and **Monday, 30 Nov 202
 - No avatar/logo image cropper or inline PDF viewer library.
 - No Redis queues or external SMS/WhatsApp provider SDKs (keep preference toggles in DB; keep email via Brevo + in-app only).
 
+# Implementation progress — 2026-11-23 (Backend Throttle 5x Scaling & Frontend Schema Reconcile)
+- **Frontend Changes Synced to Backend**:
+  - Reconciled Drizzle migration `0006_parched_eternals.sql` adding `account_setup_tokens`, `google_auth_challenges`, `google_identities`, and `account_type_selected_at`.
+  - Added new auth endpoints to the implementation record: `POST /api/v1/auth/complete-account-setup`, `POST /api/v1/auth/google/challenge`, and `POST /api/v1/auth/google`.
+- **Backend Throttle Limits & Proxy IP Forwarding**:
+  - Scaled all `@Throttle()` ceilings by 5x (signup to 25/min, verify-email to 50/min, refresh to 100/min, global to 150/min) in `AuthController` and `AuthModule`.
+  - Enabled `app.set('trust proxy', 1)` on `NestExpressApplication` in `backend/src/main.ts` so reverse-proxy client IPs are honored properly without batching multiple users under Render's shared egress IP.
+- **Verification Evidence**:
+  - Full backend test suite passing (17/17 tests passing in `npm.cmd test -w backend`).
+  - Full workspaces test passing (26/26 tests passing).
+  - TypeScript typecheck and production build passing (`npm.cmd run typecheck`, `npm.cmd run build`).
+- **New Plan Registered**: Filed `PLAN-0008` (`.agents/plans/PLAN-0008-backend-proxy-throttle-alignment.md`) documenting proxy resolution, throttle resilience, and Google identity alignment.
+
 # Implementation progress — 2026-11-20 (Pilot Scope Trim & Backend Phase 3 Merge)
 - **Backend Phase 3 Implemented & Merged to `dev` (`011b737`)**:
   - Added `UsersModule` (`GET`/`PATCH /api/v1/users/me`, `GET`/`PATCH /api/v1/users/me/communication-preferences`), `AuditService` (`audit_logs`), `VerificationModule` (`POST /api/v1/organizations/:organizationId/verification/submit`, `GET /api/v1/admin/organizations/verifications`, `PATCH /api/v1/admin/organizations/:organizationId/verification/decide`), `PlatformAdminGuard` (requires DB `DBI_ADMIN`/`SUPER_ADMIN` + MFA enabled), and Drizzle migrations `0004` and `0005`.

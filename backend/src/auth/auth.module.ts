@@ -12,7 +12,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
   imports: [
     DatabaseModule,
     JwtModule.register({}),
-    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 30 }]),
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 150 }]),
   ],
   controllers: [AuthController],
   providers: [
