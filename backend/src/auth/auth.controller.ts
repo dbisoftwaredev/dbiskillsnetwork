@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpException, HttpStatus, InternalServerErrorException, Logger, Post, UseGuards } from '@nestjs/common';
 import {
   ApiAcceptedResponse,
   ApiBadRequestResponse,
@@ -14,6 +14,8 @@ import {
   getSchemaPath,
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
+import { DrizzleQueryError } from 'drizzle-orm';
+import { DatabaseError } from 'pg';
 import { AuthService } from './auth.service';
 import {
   ForgotPasswordDto,
@@ -45,6 +47,8 @@ import { AuthenticatedUser, JwtAuthGuard } from './jwt-auth.guard';
 @ApiTags('Authentication')
 @ApiExtraModels(AuthTokensResponseDto, AccountSetupResponseDto, MfaChallengeResponseDto)
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(private readonly auth: AuthService) {}
 
   @Post('signup')
@@ -55,8 +59,26 @@ export class AuthController {
   @ApiBadRequestResponse({ description: 'Invalid input or required consent is missing', type: ErrorResponseDto })
   @ApiConflictResponse({ description: 'An account with this email already exists', type: ErrorResponseDto })
   @ApiServiceUnavailableResponse({ description: 'Database or Brevo email delivery is unavailable', type: ErrorResponseDto })
-  signUp(@Body() body: SignUpDto) {
-    return this.auth.signUp(body);
+  async signUp(@Body() body: SignUpDto) {
+    try {
+      return await this.auth.signUp(body);
+    } catch (error) {
+      if (error instanceof HttpException) {
+        if (error.getStatus() >= 500) this.logger.error(`Signup failed: ${error.message}`);
+        throw error;
+      }
+
+      // Drizzle errors include bound SQL parameters. Log the underlying diagnostic without them.
+      const cause = error instanceof DrizzleQueryError ? error.cause : error;
+      if (cause instanceof DatabaseError) {
+        const schemaError = cause.code === '42703' || cause.code === '42P01';
+        this.logger.error(`Signup failed: PostgreSQL ${cause.code}${schemaError ? ` (${cause.message})` : ''}`);
+      } else {
+        const frames = cause instanceof Error ? cause.stack?.split('\n').filter((line) => /^\s+at /.test(line)).join('\n') : undefined;
+        this.logger.error('Signup failed unexpectedly', frames);
+      }
+      throw new InternalServerErrorException();
+    }
   }
 
   @Post('complete-account-setup')
