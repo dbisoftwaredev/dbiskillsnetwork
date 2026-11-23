@@ -11,7 +11,7 @@ export default async function ResetPasswordPage({ searchParams }: { searchParams
     <AuthShell panel="security" top={<a href="/auth/login">Back to sign in</a>}>
       {token ? (
         <>
-          <Heading eyebrow="Account recovery" title="Choose a new" accent="password.">You’ll be signed out everywhere once it’s changed.</Heading>
+          <Heading title="Choose a new" accent="password.">You’ll be signed out everywhere once it’s changed.</Heading>
           <ResetPasswordForm token={token} />
         </>
       ) : (

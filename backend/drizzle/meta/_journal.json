@@ -43,6 +43,13 @@
       "when": 1794852349529,
       "tag": "0005_org_verification_platform_role",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795393772030,
+      "tag": "0006_parched_eternals",
+      "breakpoints": true
     }
   ]
 }

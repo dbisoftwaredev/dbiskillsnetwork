@@ -43,8 +43,12 @@ test('Swagger serves the versioned API contract outside production and base rout
     assert.equal(signup?.summary, 'Register an account and send an email verification link');
     assert.equal(signup?.requestBody?.content?.['application/json']?.schema?.$ref, '#/components/schemas/SignUpDto');
     assert.ok(document.components.schemas.SignUpDto.properties?.termsAccepted);
+    assert.equal(document.components.schemas.SignUpDto.properties?.accountType, undefined);
     assert.equal(signup?.security, undefined);
     assert.equal(document.paths['/api/v1/auth/signin']?.post?.security, undefined);
+    assert.ok(document.paths['/api/v1/auth/complete-account-setup']?.post);
+    assert.ok(document.paths['/api/v1/auth/google']?.post);
+    assert.ok(document.paths['/api/v1/auth/google/challenge']?.post);
 
     // Every authenticated endpoint must declare bearer security in OpenAPI
     const protectedOps: Array<[string, string]> = [

@@ -1,16 +1,19 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { CheckField, ExpiryCountdown, OtpField, PasswordField, SubmitButton, TextField } from '../../components/fields';
 import { SentState } from '../../components/shells';
-import { Alert, Icon } from '../../components/ui';
+import { Alert } from '../../components/ui';
 import {
+  completeAccountSetup,
   completeMfa,
   confirmMfaSetup,
   requestPasswordReset,
   resetPassword,
   signIn,
+  signInWithGoogle,
   signUp,
+  signUpWithGoogle,
   startMfaSetup,
   verifyEmail,
   type FormState,
@@ -18,9 +21,92 @@ import {
 
 const empty: FormState = {};
 
-export function SignUpForm({ initialType }: { initialType: 'TALENT' | 'ORGANIZATION_REPRESENTATIVE' }) {
+type GoogleResponse = { credential?: string };
+
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize(options: { client_id: string; nonce: string; callback(response: GoogleResponse): void }): void;
+          renderButton(element: HTMLElement, options: { theme: string; size: string; shape: string; text: string; width: number }): void;
+        };
+      };
+    };
+  }
+}
+
+function GoogleAuthButton({ mode }: { mode: 'SIGN_IN' | 'SIGN_UP' }) {
+  const container = useRef<HTMLDivElement>(null);
+  const submitter = useRef<HTMLButtonElement>(null);
+  const credentialField = useRef<HTMLInputElement>(null);
+  const challengeField = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState('');
+  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
+  useEffect(() => {
+    if (!clientId || !container.current) return;
+    let active = true;
+    const showButton = (challengeToken: string) => {
+      if (!active || !container.current || !window.google) return;
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        nonce: challengeToken,
+        callback: ({ credential }) => {
+          if (!credentialField.current || !challengeField.current || !submitter.current) return;
+          credentialField.current.value = credential ?? '';
+          challengeField.current.value = challengeToken;
+          const form = submitter.current.form;
+          if (form && credential) form.requestSubmit(submitter.current);
+          else setError('Google sign-in did not return a valid credential. Try again.');
+        },
+      });
+      window.google.accounts.id.renderButton(container.current, {
+        theme: 'outline', size: 'large', shape: 'rect', text: 'continue_with', width: Math.min(container.current.clientWidth, 360),
+      });
+    };
+
+    void fetch('/api/v1/auth/google/challenge', { method: 'POST', headers: { accept: 'application/json' } })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('Google sign-in is not available right now.');
+        const body = await response.json() as { challengeToken?: string };
+        if (!body.challengeToken) throw new Error('Google sign-in is not available right now.');
+        return body.challengeToken;
+      })
+      .then((challengeToken) => {
+        if (window.google) {
+          showButton(challengeToken);
+          return;
+        }
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        script.onload = () => showButton(challengeToken);
+        script.onerror = () => setError('Google sign-in could not load. Try again or use your email.');
+        document.head.append(script);
+      })
+      .catch(() => setError('Google sign-in is not available right now. Try your email instead.'));
+
+    return () => { active = false; };
+  }, [clientId]);
+
+  if (!clientId) return <p className="ui-muted">Google sign-in is not configured yet.</p>;
+  return (
+    <div className="ui-google-auth">
+      {error ? <Alert tone="info">{error}</Alert> : null}
+      <div ref={container} className="ui-google-button" />
+      <input ref={credentialField} type="hidden" name="credential" />
+      <input ref={challengeField} type="hidden" name="challengeToken" />
+      <button ref={submitter} type="submit" formAction={mode === 'SIGN_IN' ? signInWithGoogle : signUpWithGoogle} hidden>
+        Continue with Google
+      </button>
+    </div>
+  );
+}
+
+export function SignUpForm() {
   const [state, action] = useActionState(signUp, empty);
-  const [type, setType] = useState(state.values?.accountType || initialType);
 
   if (state.done) {
     return (
@@ -35,22 +121,7 @@ export function SignUpForm({ initialType }: { initialType: 'TALENT' | 'ORGANIZAT
   return (
     <form action={action} className="ui-form" noValidate>
       {state.error ? <Alert>{state.error}</Alert> : null}
-      <fieldset className={`ui-choices${f.accountType ? ' has-error' : ''}`} aria-describedby={f.accountType ? 'type-error' : undefined}>
-        <legend>I’m joining as</legend>
-        <label className="ui-choice">
-          <input type="radio" name="accountType" value="TALENT" checked={type === 'TALENT'} onChange={() => setType('TALENT')} />
-          <span className="ui-choice-icon"><Icon name="user" /></span>
-          <span className="ui-choice-text"><strong>Talent</strong><span>Grow my skills and career</span></span>
-        </label>
-        <label className="ui-choice">
-          <input type="radio" name="accountType" value="ORGANIZATION_REPRESENTATIVE" checked={type === 'ORGANIZATION_REPRESENTATIVE'}
-            onChange={() => setType('ORGANIZATION_REPRESENTATIVE')} />
-          <span className="ui-choice-icon"><Icon name="building" /></span>
-          <span className="ui-choice-text"><strong>An organization</strong><span>Hire or develop talent</span></span>
-        </label>
-        {f.accountType ? <p className="ui-error" id="type-error">{f.accountType}</p> : null}
-      </fieldset>
-      <TextField name="email" label={type === 'ORGANIZATION_REPRESENTATIVE' ? 'Work email' : 'Email'} type="email" autoComplete="email"
+      <TextField name="email" label="Email" type="email" autoComplete="email"
         required maxLength={254} defaultValue={state.values?.email} error={f.email} />
       <PasswordField meter autoComplete="new-password" error={f.password} />
       <div className="ui-consents">
@@ -58,7 +129,32 @@ export function SignUpForm({ initialType }: { initialType: 'TALENT' | 'ORGANIZAT
         <CheckField name="privacy" required error={f.privacy}>I’ve read the <a href="/legal/privacy" target="_blank" rel="noopener">Privacy Notice</a> and understand how my data is used</CheckField>
         <CheckField name="marketing">Send me occasional news about programmes and opportunities <span className="ui-muted">(optional)</span></CheckField>
       </div>
+      <p className="ui-muted ui-center">Or create an account with</p>
+      <GoogleAuthButton mode="SIGN_UP" />
       <SubmitButton pendingLabel="Creating account…">Create account</SubmitButton>
+    </form>
+  );
+}
+
+export function AccountTypeForm() {
+  const [state, action] = useActionState(completeAccountSetup, empty);
+  const f = state.fields ?? {};
+  return (
+    <form action={action} className="ui-form" noValidate>
+      {state.error ? <Alert>{state.error}</Alert> : null}
+      <fieldset className={`ui-choices${f.accountType ? ' has-error' : ''}`} aria-describedby={f.accountType ? 'account-type-error' : undefined}>
+        <legend>How will you use DBI Skills Network?</legend>
+        <label className="ui-choice">
+          <input type="radio" name="accountType" value="TALENT" defaultChecked />
+          <span className="ui-choice-text"><strong>As an individual</strong><span>Build my skills and career</span></span>
+        </label>
+        <label className="ui-choice">
+          <input type="radio" name="accountType" value="ORGANIZATION_REPRESENTATIVE" />
+          <span className="ui-choice-text"><strong>For an organization</strong><span>Hire or develop talent</span></span>
+        </label>
+        {f.accountType ? <p className="ui-error" id="account-type-error">{f.accountType}</p> : null}
+      </fieldset>
+      <SubmitButton pendingLabel="Setting up your account…">Continue</SubmitButton>
     </form>
   );
 }
@@ -73,6 +169,8 @@ export function SignInForm({ next, email }: { next: string; email?: string }) {
       <TextField name="email" label="Email" type="email" autoComplete="email" required maxLength={254}
         defaultValue={state.values?.email ?? email} error={f.email} autoFocus />
       <PasswordField error={f.password} aside={<a className="ui-label-link" href="/auth/forgot-password">Forgot password?</a>} />
+      <p className="ui-muted ui-center">Or sign in with</p>
+      <GoogleAuthButton mode="SIGN_IN" />
       <SubmitButton pendingLabel="Signing in…">Sign in</SubmitButton>
     </form>
   );

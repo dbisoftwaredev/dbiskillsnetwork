@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
-import { and, eq, gt, isNull, sql } from 'drizzle-orm';
+import { and, eq, gt, isNotNull, isNull, lt, sql } from 'drizzle-orm';
 import { createHash, createHmac, randomBytes, randomInt, timingSafeEqual } from 'node:crypto';
 import { readConfig } from '../config';
 import { DatabaseService } from '../database';
@@ -15,12 +15,16 @@ import {
   consentRecords,
   emailOtpChallenges,
   emailVerificationTokens,
+  accountSetupTokens,
+  googleAuthChallenges,
+  googleIdentities,
   passwordResetTokens,
   refreshTokens,
   users,
 } from '../schema';
 import { AuthEmailService } from './email.service';
-import { SignUpDto } from './auth.dto';
+import { CompleteAccountSetupDto, GoogleSignInDto, SignUpDto } from './auth.dto';
+import { verifyGoogleCredential } from './google-token';
 
 const ACCESS_TOKEN_TTL = '15m';
 const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
@@ -28,6 +32,8 @@ const VERIFICATION_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 const PASSWORD_RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
 const EMAIL_OTP_TTL_MS = 5 * 60 * 1000;
 const EMAIL_OTP_MAX_ATTEMPTS = 5;
+const ACCOUNT_SETUP_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
+const GOOGLE_CHALLENGE_TTL_MS = 5 * 60 * 1000;
 const MFAChallengeMessage = 'Verification code is invalid, expired, or has already been used';
 
 type AccountType = 'TALENT' | 'ORGANIZATION_REPRESENTATIVE';
@@ -53,7 +59,8 @@ export class AuthService {
       const [created] = await tx.insert(users).values({
         email,
         passwordHash,
-        accountType: input.accountType,
+        accountType: 'TALENT',
+        accountTypeSelectedAt: null,
       }).onConflictDoNothing({ target: users.email }).returning({ id: users.id });
       if (!created) return [];
 
@@ -81,10 +88,10 @@ export class AuthService {
     return { message: 'Check your email for a verification link' };
   }
 
-  async verifyEmail(token: string): Promise<{ verified: true }> {
+  async verifyEmail(token: string): Promise<{ verified: true; setupToken: string }> {
     const tokenHash = this.hashToken(token);
     const now = new Date();
-    await this.database.db.transaction(async (tx) => {
+    const userId = await this.database.db.transaction(async (tx) => {
       const [record] = await tx.select({ id: emailVerificationTokens.id, userId: emailVerificationTokens.userId })
         .from(emailVerificationTokens)
         .where(and(eq(emailVerificationTokens.tokenHash, tokenHash), gt(emailVerificationTokens.expiresAt, now)))
@@ -93,8 +100,151 @@ export class AuthService {
 
       await tx.update(users).set({ emailVerifiedAt: now, updatedAt: now }).where(eq(users.id, record.userId));
       await tx.delete(emailVerificationTokens).where(eq(emailVerificationTokens.id, record.id));
+      return record.userId;
     });
-    return { verified: true };
+    const setupToken = await this.createAccountSetupToken(userId);
+    return { verified: true, setupToken };
+  }
+
+  async completeAccountSetup(input: CompleteAccountSetupDto) {
+    const now = new Date();
+    const account = await this.database.db.transaction(async (tx) => {
+      const [setup] = await tx.select({
+        id: accountSetupTokens.id,
+        userId: accountSetupTokens.userId,
+      }).from(accountSetupTokens).where(and(
+        eq(accountSetupTokens.tokenHash, this.hashToken(input.setupToken)),
+        isNull(accountSetupTokens.consumedAt),
+        gt(accountSetupTokens.expiresAt, now),
+      )).limit(1);
+      if (!setup) return undefined;
+
+      const [user] = await tx.update(users).set({
+        accountType: input.accountType,
+        accountTypeSelectedAt: now,
+        updatedAt: now,
+      }).where(and(
+        eq(users.id, setup.userId),
+        isNull(users.accountTypeSelectedAt),
+        isNotNull(users.emailVerifiedAt),
+      )).returning({ id: users.id, email: users.email });
+      if (!user) return undefined;
+
+      const [consumed] = await tx.update(accountSetupTokens)
+        .set({ consumedAt: now })
+        .where(and(eq(accountSetupTokens.id, setup.id), isNull(accountSetupTokens.consumedAt)))
+        .returning({ id: accountSetupTokens.id });
+      return consumed ? user : undefined;
+    });
+    if (!account) throw new UnauthorizedException('Account setup link is invalid, expired, or already used');
+    return this.issueSession(account.id, account.email, input.accountType);
+  }
+
+  async createGoogleChallenge(): Promise<{ challengeToken: string; expiresIn: number }> {
+    this.requireGoogleClientId();
+    const challengeToken = randomBytes(32).toString('base64url');
+    await this.database.db.delete(googleAuthChallenges).where(lt(googleAuthChallenges.expiresAt, new Date()));
+    await this.database.db.insert(googleAuthChallenges).values({
+      tokenHash: this.hashToken(challengeToken),
+      expiresAt: new Date(Date.now() + GOOGLE_CHALLENGE_TTL_MS),
+    });
+    return { challengeToken, expiresIn: GOOGLE_CHALLENGE_TTL_MS / 1000 };
+  }
+
+  async googleSignIn(input: GoogleSignInDto) {
+    if (input.mode === 'SIGN_UP' && (input.termsAccepted !== true || input.privacyAccepted !== true)) {
+      throw new BadRequestException('Terms and privacy notice must be accepted');
+    }
+
+    const clientId = this.requireGoogleClientId();
+    const identity = await verifyGoogleCredential(input.credential, clientId, input.challengeToken);
+    const signUpPasswordHash = input.mode === 'SIGN_UP'
+      ? await argon2.hash(randomBytes(32).toString('base64url'), { type: argon2.argon2id })
+      : null;
+    const now = new Date();
+    const user = await this.database.db.transaction(async (tx) => {
+      const [challenge] = await tx.update(googleAuthChallenges).set({ consumedAt: now })
+        .where(and(
+          eq(googleAuthChallenges.tokenHash, this.hashToken(input.challengeToken)),
+          isNull(googleAuthChallenges.consumedAt),
+          gt(googleAuthChallenges.expiresAt, now),
+        )).returning({ id: googleAuthChallenges.id });
+      if (!challenge) throw new UnauthorizedException('Google sign-in attempt expired; try again');
+
+      const [linkedIdentity] = await tx.select({ userId: googleIdentities.userId })
+        .from(googleIdentities).where(eq(googleIdentities.googleSubject, identity.subject)).limit(1);
+      if (linkedIdentity) {
+        const [linkedUser] = await tx.select({
+          id: users.id,
+          email: users.email,
+          accountType: users.accountType,
+          accountTypeSelectedAt: users.accountTypeSelectedAt,
+          emailVerifiedAt: users.emailVerifiedAt,
+          mfaEnabled: users.mfaEnabled,
+        }).from(users).where(eq(users.id, linkedIdentity.userId)).limit(1);
+        if (!linkedUser) throw new UnauthorizedException('Google account is unavailable');
+        if (input.mode === 'SIGN_UP') throw new ConflictException('This Google account is already registered. Sign in instead.');
+        return linkedUser;
+      }
+
+      const [existing] = await tx.select({
+        id: users.id,
+        email: users.email,
+        accountType: users.accountType,
+        accountTypeSelectedAt: users.accountTypeSelectedAt,
+        emailVerifiedAt: users.emailVerifiedAt,
+        mfaEnabled: users.mfaEnabled,
+      }).from(users).where(eq(users.email, identity.email)).limit(1);
+
+      if (input.mode === 'SIGN_UP' && existing) {
+        throw new ConflictException('An account already uses this email. Sign in instead.');
+      }
+      if (input.mode === 'SIGN_IN' && !existing) {
+        throw new UnauthorizedException('No account uses this Google email. Create an account first.');
+      }
+
+      let linkedUser = existing;
+      if (!linkedUser) {
+        if (!signUpPasswordHash) throw new BadRequestException('Google account cannot be created in sign-in mode');
+        const [created] = await tx.insert(users).values({
+          email: identity.email,
+          passwordHash: signUpPasswordHash,
+          accountType: 'TALENT',
+          accountTypeSelectedAt: null,
+          emailVerifiedAt: now,
+        }).returning({
+          id: users.id,
+          email: users.email,
+          accountType: users.accountType,
+          accountTypeSelectedAt: users.accountTypeSelectedAt,
+          emailVerifiedAt: users.emailVerifiedAt,
+          mfaEnabled: users.mfaEnabled,
+        });
+        if (!created) throw new ServiceUnavailableException('Unable to create the account');
+        const config = readConfig();
+        await tx.insert(consentRecords).values([
+          { userId: created.id, type: 'TERMS', granted: true, version: config.termsVersion },
+          { userId: created.id, type: 'PRIVACY', granted: true, version: config.privacyVersion },
+          { userId: created.id, type: 'MARKETING', granted: input.marketingOptIn, version: 'v1' },
+        ]);
+        linkedUser = created;
+      } else if (!linkedUser.emailVerifiedAt) {
+        await tx.update(users).set({ emailVerifiedAt: now, updatedAt: now }).where(eq(users.id, linkedUser.id));
+        await tx.delete(emailVerificationTokens).where(eq(emailVerificationTokens.userId, linkedUser.id));
+      }
+
+      await tx.insert(googleIdentities).values({ userId: linkedUser.id, googleSubject: identity.subject });
+      return linkedUser;
+    });
+
+    if (!user.accountTypeSelectedAt) {
+      return { accountSetupRequired: true as const, setupToken: await this.createAccountSetupToken(user.id) };
+    }
+    if (user.mfaEnabled) {
+      const challengeToken = await this.createEmailOtpChallenge(user.id, user.email, 'MFA_SIGN_IN');
+      return { mfaRequired: true as const, challengeToken, expiresIn: EMAIL_OTP_TTL_MS / 1000, email: user.email };
+    }
+    return this.issueSession(user.id, user.email, user.accountType);
   }
 
   async forgotPassword(emailInput: string): Promise<{ message: string }> {
@@ -160,6 +310,7 @@ export class AuthService {
       email: users.email,
       passwordHash: users.passwordHash,
       accountType: users.accountType,
+      accountTypeSelectedAt: users.accountTypeSelectedAt,
       emailVerifiedAt: users.emailVerifiedAt,
       mfaEnabled: users.mfaEnabled,
     }).from(users).where(eq(users.email, email)).limit(1);
@@ -171,6 +322,9 @@ export class AuthService {
     if (user.mfaEnabled) {
       const challengeToken = await this.createEmailOtpChallenge(user.id, user.email, 'MFA_SIGN_IN');
       return { mfaRequired: true as const, challengeToken, expiresIn: EMAIL_OTP_TTL_MS / 1000 };
+    }
+    if (!user.accountTypeSelectedAt) {
+      return { accountSetupRequired: true as const, setupToken: await this.createAccountSetupToken(user.id) };
     }
     return this.issueSession(user.id, user.email, user.accountType);
   }
@@ -213,10 +367,14 @@ export class AuthService {
       id: users.id,
       email: users.email,
       accountType: users.accountType,
+      accountTypeSelectedAt: users.accountTypeSelectedAt,
       emailVerifiedAt: users.emailVerifiedAt,
       mfaEnabled: users.mfaEnabled,
     }).from(users).where(eq(users.id, userId)).limit(1);
     if (!user?.emailVerifiedAt || !user.mfaEnabled) throw new UnauthorizedException('Account is unavailable');
+    if (!user.accountTypeSelectedAt) {
+      return { accountSetupRequired: true as const, setupToken: await this.createAccountSetupToken(user.id) };
+    }
     return this.issueSession(user.id, user.email, user.accountType);
   }
 
@@ -307,6 +465,29 @@ export class AuthService {
     const secret = readConfig().accessTokenSecret;
     if (!secret) throw new ServiceUnavailableException('Authentication is not configured');
     return secret;
+  }
+
+  private requireGoogleClientId(): string {
+    const clientId = readConfig().googleClientId;
+    if (!clientId) throw new ServiceUnavailableException('Google sign-in is not configured');
+    return clientId;
+  }
+
+  private async createAccountSetupToken(userId: string): Promise<string> {
+    const token = randomBytes(32).toString('base64url');
+    await this.database.db.transaction(async (tx) => {
+      await tx.delete(accountSetupTokens).where(lt(accountSetupTokens.expiresAt, new Date()));
+      await tx.delete(accountSetupTokens).where(and(
+        eq(accountSetupTokens.userId, userId),
+        isNull(accountSetupTokens.consumedAt),
+      ));
+      await tx.insert(accountSetupTokens).values({
+        userId,
+        tokenHash: this.hashToken(token),
+        expiresAt: new Date(Date.now() + ACCOUNT_SETUP_TOKEN_TTL_MS),
+      });
+    });
+    return token;
   }
 
   private async createEmailOtpChallenge(

@@ -1,17 +1,22 @@
 'use server';
 
+import { DEMO_ENABLED, demoTokens } from '../../lib/demo';
+
 import { redirect } from 'next/navigation';
 import { api, type MfaChallenge, type Tokens } from '../../lib/api';
 import { emailProblem, normalizeOtp, passwordProblem, readClaims, safeNext } from '../../lib/rules';
 import {
   clearChallenge,
+  clearAccountSetupToken,
   clearSession,
   forgetRefreshToken,
   homeFor,
   readChallenge,
+  readAccountSetupToken,
   readRefreshToken,
   requireSession,
   storeChallenge,
+  storeAccountSetupToken,
   storeTokens,
   type Session,
 } from '../../lib/session';
@@ -25,6 +30,8 @@ export type FormState = {
   notice?: string;
 };
 
+type AccountSetupRequired = { accountSetupRequired: true; setupToken: string };
+type GoogleAuthResult = Tokens | MfaChallenge | AccountSetupRequired;
 const text = (form: FormData, key: string) => String(form.get(key) ?? '').trim();
 
 async function finishSignIn(tokens: Tokens, next: string): Promise<never> {
@@ -38,11 +45,9 @@ async function finishSignIn(tokens: Tokens, next: string): Promise<never> {
 export async function signUp(_: FormState, form: FormData): Promise<FormState> {
   const email = text(form, 'email').toLowerCase();
   const password = String(form.get('password') ?? '');
-  const accountType = text(form, 'accountType');
-  const values = { email, accountType };
+  const values = { email };
   const fields: Record<string, string> = {};
 
-  if (accountType !== 'TALENT' && accountType !== 'ORGANIZATION_REPRESENTATIVE') fields.accountType = 'Choose how you’ll use DBI Skills Network.';
   const emailIssue = emailProblem(email);
   if (emailIssue) fields.email = emailIssue;
   const passwordIssue = passwordProblem(password);
@@ -51,11 +56,16 @@ export async function signUp(_: FormState, form: FormData): Promise<FormState> {
   if (form.get('privacy') !== 'on') fields.privacy = 'You need to acknowledge the Privacy Notice to continue.';
   if (Object.keys(fields).length) return { fields, values };
 
+  // Local demo: skip email confirmation and go straight in.
+  if (DEMO_ENABLED) {
+    await storeTokens(demoTokens(email, 'TALENT'));
+    redirect('/auth/choose-account');
+  }
+
   const result = await api('/auth/signup', {
     body: {
       email,
       password,
-      accountType,
       termsAccepted: true,
       privacyAccepted: true,
       marketingOptIn: form.get('marketing') === 'on',
@@ -69,11 +79,12 @@ export async function signUp(_: FormState, form: FormData): Promise<FormState> {
 }
 
 export async function verifyEmail(_: FormState, form: FormData): Promise<FormState> {
-  const result = await api('/auth/verify-email', { body: { token: text(form, 'token') } });
+  const result = await api<{ verified: true; setupToken: string }>('/auth/verify-email', { body: { token: text(form, 'token') } });
   if (!result.ok) {
     return { error: result.status === 401 || result.status === 400 ? 'This link has expired or was already used.' : result.message };
   }
-  return { done: true };
+  await storeAccountSetupToken(result.data.setupToken);
+  redirect('/auth/choose-account');
 }
 
 export async function signIn(_: FormState, form: FormData): Promise<FormState> {
@@ -87,14 +98,61 @@ export async function signIn(_: FormState, form: FormData): Promise<FormState> {
     return { fields: { ...(emailIssue ? { email: emailIssue } : {}), ...(!password ? { password: 'Enter your password.' } : {}) }, values };
   }
 
-  const result = await api<Tokens | MfaChallenge>('/auth/signin', { body: { email, password } });
+  // Local demo: any email and password signs in (next dev only; see lib/demo.ts).
+  if (DEMO_ENABLED) {
+    return finishSignIn(demoTokens(email), next);
+  }
+
+  const result = await api<Tokens | MfaChallenge | AccountSetupRequired>('/auth/signin', { body: { email, password } });
   if (!result.ok) return { error: result.message, values };
 
   if ('mfaRequired' in result.data) {
     await storeChallenge(result.data.challengeToken, result.data.expiresIn, email);
     redirect(`/auth/mfa${next ? `?next=${encodeURIComponent(next)}` : ''}`);
   }
+  if ('accountSetupRequired' in result.data) {
+    await storeAccountSetupToken(result.data.setupToken);
+    redirect('/auth/choose-account');
+  }
   return finishSignIn(result.data, next);
+}
+
+export async function signInWithGoogle(form: FormData): Promise<never> {
+  const next = safeNext(form.get('next'));
+  const result = await api<GoogleAuthResult>('/auth/google', {
+    body: {
+      credential: text(form, 'credential'),
+      challengeToken: text(form, 'challengeToken'),
+      mode: 'SIGN_IN',
+    },
+  });
+  if (!result.ok) redirect('/auth/login?notice=google-signin-failed');
+  if ('mfaRequired' in result.data) {
+    await storeChallenge(result.data.challengeToken, result.data.expiresIn, result.data.email);
+    redirect(`/auth/mfa${next ? `?next=${encodeURIComponent(next)}` : ''}`);
+  }
+  if ('accountSetupRequired' in result.data) {
+    await storeAccountSetupToken(result.data.setupToken);
+    redirect('/auth/choose-account');
+  }
+  return finishSignIn(result.data, next);
+}
+
+export async function signUpWithGoogle(form: FormData): Promise<never> {
+  if (form.get('terms') !== 'on' || form.get('privacy') !== 'on') redirect('/auth/signup?notice=consent-required');
+  const result = await api<GoogleAuthResult>('/auth/google', {
+    body: {
+      credential: text(form, 'credential'),
+      challengeToken: text(form, 'challengeToken'),
+      mode: 'SIGN_UP',
+      termsAccepted: true,
+      privacyAccepted: true,
+      marketingOptIn: form.get('marketing') === 'on',
+    },
+  });
+  if (!result.ok || !('accountSetupRequired' in result.data)) redirect('/auth/signup?notice=google-signup-failed');
+  await storeAccountSetupToken(result.data.setupToken);
+  redirect('/auth/choose-account');
 }
 
 export async function completeMfa(_: FormState, form: FormData): Promise<FormState> {
@@ -105,13 +163,42 @@ export async function completeMfa(_: FormState, form: FormData): Promise<FormSta
   const { token } = await readChallenge();
   if (!token) return { error: 'This sign-in attempt has expired. Sign in again to get a new code.' };
 
-  const result = await api<Tokens>('/auth/mfa/challenge', { body: { challengeToken: token, code } });
+  const result = await api<Tokens | AccountSetupRequired>('/auth/mfa/challenge', { body: { challengeToken: token, code } });
   if (!result.ok) {
     if (result.status === 401) return { fields: { code: 'That code didn’t work. Check it, or sign in again for a new one.' } };
     return { error: result.message };
   }
   await clearChallenge();
+  if ('accountSetupRequired' in result.data) {
+    await storeAccountSetupToken(result.data.setupToken);
+    redirect('/auth/choose-account');
+  }
   return finishSignIn(result.data, next);
+}
+
+export async function completeAccountSetup(_: FormState, form: FormData): Promise<FormState> {
+  const accountType = text(form, 'accountType');
+  if (accountType !== 'TALENT' && accountType !== 'ORGANIZATION_REPRESENTATIVE') {
+    return { fields: { accountType: 'Choose individual or organization to continue.' } };
+  }
+
+  if (DEMO_ENABLED) {
+    const session = await requireSession('/auth/choose-account');
+    return finishSignIn(demoTokens(session.email, accountType), '');
+  }
+
+  const setupToken = await readAccountSetupToken();
+  if (!setupToken) redirect('/auth/login?notice=setup-expired');
+  const result = await api<Tokens>('/auth/complete-account-setup', { body: { setupToken, accountType } });
+  if (!result.ok) {
+    if (result.status === 401) {
+      await clearAccountSetupToken();
+      redirect('/auth/login?notice=setup-expired');
+    }
+    return { error: result.message };
+  }
+  await clearAccountSetupToken();
+  return finishSignIn(result.data, '');
 }
 
 export async function requestPasswordReset(_: FormState, form: FormData): Promise<FormState> {

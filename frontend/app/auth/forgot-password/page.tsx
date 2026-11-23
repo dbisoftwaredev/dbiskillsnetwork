@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: 'Reset your password · DBI Skills Ne
 export default function ForgotPasswordPage() {
   return (
     <AuthShell panel="security" top={<a href="/auth/login">Back to sign in</a>}>
-      <Heading eyebrow="Account recovery" title="Reset your" accent="password.">Enter your account email and we’ll send you a reset link.</Heading>
+      <Heading title="Reset your" accent="password.">Enter your account email and we’ll send you a reset link.</Heading>
       <ForgotPasswordForm />
     </AuthShell>
   );

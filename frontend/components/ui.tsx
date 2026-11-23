@@ -1,12 +1,10 @@
-import { ArtSprite, Crest } from './home/art';
 import type { ReactNode } from 'react';
 
 export function Brand() {
   return (
     <a className="ui-brand" href="/" aria-label="DBI Skills Network home">
-      <ArtSprite />
-      <span className="ui-seal"><Crest id="brand-crest" /></span>
-      <span className="ui-word">DBI <em>Skills Network</em></span>
+      <img src="/images/dbi-logo.png" alt="" width={28} height={28} />
+      <span>DBI Skills Network</span>
     </a>
   );
 }
@@ -43,7 +41,7 @@ export function describedBy(id: string, error?: string, hint?: unknown) {
 export function Heading({ eyebrow, title, accent, children }: { eyebrow?: string; title: string; accent?: string; children?: ReactNode }) {
   return (
     <div className="ui-heading">
-      {eyebrow ? <p className="ui-eyebrow"><span aria-hidden="true" />{eyebrow}</p> : null}
+      {eyebrow ? <p className="ui-eyebrow">{eyebrow}</p> : null}
       <h1>{title}{accent ? <> <em>{accent}</em></> : null}</h1>
       {children ? <p className="ui-lede">{children}</p> : null}
     </div>

@@ -15,7 +15,7 @@ export default async function MfaPage({ searchParams }: { searchParams: Promise<
     <AuthShell panel="security" top={<a href="/auth/login">Use a different account</a>}>
       {challenge.token ? (
         <>
-          <Heading eyebrow="Two-step sign-in" title="Check your" accent="email.">
+          <Heading title="Check your" accent="email.">
             We sent a 6-digit code to {challenge.email ? <strong>{challenge.email}</strong> : 'your email'}.
           </Heading>
           <MfaForm next={next} secondsLeft={challenge.secondsLeft} />
