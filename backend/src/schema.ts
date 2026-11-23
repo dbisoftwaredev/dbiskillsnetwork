@@ -29,6 +29,7 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 254 }).notNull(),
   passwordHash: varchar('password_hash', { length: 255 }).notNull(),
   accountType: accountTypeEnum('account_type').notNull(),
+  accountTypeSelectedAt: timestamp('account_type_selected_at', { withTimezone: true }),
   platformRole: platformRoleEnum('platform_role').default('NONE').notNull(),
   emailVerifiedAt: timestamp('email_verified_at', { withTimezone: true }),
   mfaEnabled: boolean('mfa_enabled').default(false).notNull(),
@@ -58,6 +59,39 @@ export const emailVerificationTokens = pgTable('email_verification_tokens', {
 }, (table) => [
   uniqueIndex('email_verification_tokens_hash_unique').on(table.tokenHash),
   index('email_verification_tokens_user_idx').on(table.userId),
+]);
+
+export const accountSetupTokens = pgTable('account_setup_tokens', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  tokenHash: varchar('token_hash', { length: 64 }).notNull(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  consumedAt: timestamp('consumed_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  uniqueIndex('account_setup_tokens_hash_unique').on(table.tokenHash),
+  index('account_setup_tokens_user_created_idx').on(table.userId, table.createdAt),
+]);
+
+export const googleAuthChallenges = pgTable('google_auth_challenges', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tokenHash: varchar('token_hash', { length: 64 }).notNull(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  consumedAt: timestamp('consumed_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  uniqueIndex('google_auth_challenges_hash_unique').on(table.tokenHash),
+  index('google_auth_challenges_created_idx').on(table.createdAt),
+]);
+
+export const googleIdentities = pgTable('google_identities', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  googleSubject: varchar('google_subject', { length: 255 }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  uniqueIndex('google_identities_subject_unique').on(table.googleSubject),
+  uniqueIndex('google_identities_user_unique').on(table.userId),
 ]);
 
 export const passwordResetTokens = pgTable('password_reset_tokens', {
@@ -221,6 +255,9 @@ export const schema = {
   users,
   consentRecords,
   emailVerificationTokens,
+  accountSetupTokens,
+  googleAuthChallenges,
+  googleIdentities,
   passwordResetTokens,
   refreshTokens,
   emailOtpChallenges,

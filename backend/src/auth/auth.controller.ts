@@ -17,6 +17,8 @@ import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import {
   ForgotPasswordDto,
+  CompleteAccountSetupDto,
+  GoogleSignInDto,
   RefreshTokenDto,
   ResetPasswordDto,
   SignInDto,
@@ -28,6 +30,7 @@ import {
 } from './auth.dto';
 import {
   AuthTokensResponseDto,
+  AccountSetupResponseDto,
   EmailVerifiedResponseDto,
   ErrorResponseDto,
   MfaChallengeResponseDto,
@@ -40,7 +43,7 @@ import { AuthenticatedUser, JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 @ApiTags('Authentication')
-@ApiExtraModels(AuthTokensResponseDto, MfaChallengeResponseDto)
+@ApiExtraModels(AuthTokensResponseDto, AccountSetupResponseDto, MfaChallengeResponseDto)
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
@@ -54,6 +57,43 @@ export class AuthController {
   @ApiServiceUnavailableResponse({ description: 'Database or Brevo email delivery is unavailable', type: ErrorResponseDto })
   signUp(@Body() body: SignUpDto) {
     return this.auth.signUp(body);
+  }
+
+  @Post('complete-account-setup')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @ApiOperation({ summary: 'Choose an individual or organization account after email verification' })
+  @ApiOkResponse({ type: AuthTokensResponseDto })
+  @ApiBadRequestResponse({ description: 'Invalid account type', type: ErrorResponseDto })
+  @ApiUnauthorizedResponse({ description: 'Setup token is invalid, expired, or already used', type: ErrorResponseDto })
+  completeAccountSetup(@Body() body: CompleteAccountSetupDto) {
+    return this.auth.completeAccountSetup(body);
+  }
+
+  @Post('google/challenge')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @ApiOperation({ summary: 'Create a short-lived single-use nonce for Google sign-in' })
+  @ApiOkResponse({ description: 'Single-use nonce for the Google Identity Services credential' })
+  @ApiServiceUnavailableResponse({ description: 'Google sign-in is not configured', type: ErrorResponseDto })
+  createGoogleChallenge() {
+    return this.auth.createGoogleChallenge();
+  }
+
+  @Post('google')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @ApiOperation({ summary: 'Sign in or sign up with a verified Google identity' })
+  @ApiOkResponse({ schema: { oneOf: [
+    { $ref: getSchemaPath(AuthTokensResponseDto) },
+    { $ref: getSchemaPath(AccountSetupResponseDto) },
+    { $ref: getSchemaPath(MfaChallengeResponseDto) },
+  ] } })
+  @ApiBadRequestResponse({ description: 'Invalid input or required consent is missing', type: ErrorResponseDto })
+  @ApiUnauthorizedResponse({ description: 'Google identity is invalid or unavailable', type: ErrorResponseDto })
+  @ApiConflictResponse({ description: 'An account already uses this Google identity or email', type: ErrorResponseDto })
+  googleSignIn(@Body() body: GoogleSignInDto) {
+    return this.auth.googleSignIn(body);
   }
 
   @Post('verify-email')
@@ -93,10 +133,11 @@ export class AuthController {
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @ApiOperation({ summary: 'Sign in with email and password' })
   @ApiOkResponse({
-    description: 'Returns tokens when MFA is disabled, or a challenge token when email OTP MFA is enabled',
+    description: 'Returns session tokens, an account setup token, or an email OTP challenge',
     schema: {
       oneOf: [
         { $ref: getSchemaPath(AuthTokensResponseDto) },
+        { $ref: getSchemaPath(AccountSetupResponseDto) },
         { $ref: getSchemaPath(MfaChallengeResponseDto) },
       ],
     },

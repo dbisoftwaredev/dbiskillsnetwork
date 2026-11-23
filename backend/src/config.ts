@@ -14,6 +14,7 @@ export function readConfig(env: NodeJS.ProcessEnv = process.env) {
   if (accessTokenSecret && Buffer.byteLength(accessTokenSecret) < 32) {
     throw new Error('AUTH_ACCESS_TOKEN_SECRET must be at least 32 bytes');
   }
+  const googleClientId = env.GOOGLE_CLIENT_ID?.trim();
   const brevoApiKey = env.BREVO_API_KEY?.trim();
   const brevoFromEmail = env.BREVO_FROM_EMAIL?.trim();
   if (brevoFromEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(brevoFromEmail)) {
@@ -41,6 +42,7 @@ export function readConfig(env: NodeJS.ProcessEnv = process.env) {
     appOrigin: origin.origin,
     databaseUrl,
     accessTokenSecret,
+    googleClientId,
     brevoApiKey,
     brevoFromEmail,
     brevoFromName: env.BREVO_FROM_NAME?.trim() || 'DBI Skills Network',

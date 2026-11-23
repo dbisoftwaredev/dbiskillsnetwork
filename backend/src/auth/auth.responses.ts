@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class MessageResponseDto {
   @ApiProperty({ example: 'Check your email for a verification link' })
@@ -8,6 +8,17 @@ export class MessageResponseDto {
 export class EmailVerifiedResponseDto {
   @ApiProperty({ example: true })
   verified!: boolean;
+
+  @ApiProperty({ description: 'One-time token to choose an account type before signing in' })
+  setupToken!: string;
+}
+
+export class AccountSetupResponseDto {
+  @ApiProperty({ example: true })
+  accountSetupRequired!: boolean;
+
+  @ApiProperty({ description: 'One-time token to choose an account type before signing in' })
+  setupToken!: string;
 }
 
 export class AuthTokensResponseDto {
@@ -33,6 +44,9 @@ export class MfaChallengeResponseDto {
 
   @ApiProperty({ example: 300, description: 'Challenge lifetime in seconds' })
   expiresIn!: number;
+
+  @ApiPropertyOptional({ description: 'Email address receiving the code, for social sign-in' })
+  email?: string;
 }
 
 export class MfaEnabledResponseDto {

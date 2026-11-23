@@ -1,3 +1,4 @@
+import { demoResponse, isDemoRequest } from './demo';
 import { describeApiError } from './rules';
 
 // Server-side calls go straight to the API; the browser uses the /api rewrite (next.config.mjs).
@@ -12,6 +13,8 @@ export async function api<T>(
   path: string,
   { method = 'POST', body, token }: { method?: string; body?: unknown; token?: string } = {},
 ): Promise<ApiResult<T>> {
+  // Local demo sessions (next dev only) are answered in memory; see lib/demo.ts.
+  if (isDemoRequest(token, body, path)) return demoResponse(path, method, body, token) as ApiResult<T>;
   let response: Response;
   try {
     response = await fetch(`${API_ORIGIN}/api/v1${path}`, {
@@ -33,7 +36,7 @@ export async function api<T>(
 }
 
 export type Tokens = { accessToken: string; refreshToken: string; expiresIn: number };
-export type MfaChallenge = { mfaRequired: true; challengeToken: string; expiresIn: number };
+export type MfaChallenge = { mfaRequired: true; challengeToken: string; expiresIn: number; email?: string };
 export type Organization = {
   id: string;
   name: string;

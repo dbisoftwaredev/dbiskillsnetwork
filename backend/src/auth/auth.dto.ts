@@ -13,10 +13,6 @@ export class SignUpDto {
   @MaxLength(128)
   password!: string;
 
-  @ApiProperty({ enum: ['TALENT', 'ORGANIZATION_REPRESENTATIVE'] })
-  @IsIn(['TALENT', 'ORGANIZATION_REPRESENTATIVE'])
-  accountType!: 'TALENT' | 'ORGANIZATION_REPRESENTATIVE';
-
   @ApiProperty({ example: true, description: 'Required acceptance of the current terms version' })
   @IsBoolean()
   termsAccepted!: boolean;
@@ -26,6 +22,51 @@ export class SignUpDto {
   privacyAccepted!: boolean;
 
   @ApiPropertyOptional({ default: false, description: 'Optional marketing consent; does not affect service messages' })
+  @IsOptional()
+  @IsBoolean()
+  marketingOptIn = false;
+}
+
+export class CompleteAccountSetupDto {
+  @ApiProperty({ minLength: 32, maxLength: 128, writeOnly: true })
+  @IsString()
+  @MinLength(32)
+  @MaxLength(128)
+  setupToken!: string;
+
+  @ApiProperty({ enum: ['TALENT', 'ORGANIZATION_REPRESENTATIVE'] })
+  @IsIn(['TALENT', 'ORGANIZATION_REPRESENTATIVE'])
+  accountType!: 'TALENT' | 'ORGANIZATION_REPRESENTATIVE';
+}
+
+export class GoogleSignInDto {
+  @ApiProperty({ maxLength: 8192, writeOnly: true })
+  @IsString()
+  @MinLength(100)
+  @MaxLength(8192)
+  credential!: string;
+
+  @ApiProperty({ minLength: 32, maxLength: 128, writeOnly: true })
+  @IsString()
+  @MinLength(32)
+  @MaxLength(128)
+  challengeToken!: string;
+
+  @ApiProperty({ enum: ['SIGN_IN', 'SIGN_UP'] })
+  @IsIn(['SIGN_IN', 'SIGN_UP'])
+  mode!: 'SIGN_IN' | 'SIGN_UP';
+
+  @ApiPropertyOptional({ default: false })
+  @IsOptional()
+  @IsBoolean()
+  termsAccepted = false;
+
+  @ApiPropertyOptional({ default: false })
+  @IsOptional()
+  @IsBoolean()
+  privacyAccepted = false;
+
+  @ApiPropertyOptional({ default: false })
   @IsOptional()
   @IsBoolean()
   marketingOptIn = false;

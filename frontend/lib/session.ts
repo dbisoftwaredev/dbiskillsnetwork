@@ -9,6 +9,7 @@ const REFRESH = 'dbi_refresh';
 const CHALLENGE = 'dbi_challenge';
 const CHALLENGE_EMAIL = 'dbi_challenge_email';
 const CHALLENGE_EXPIRES = 'dbi_challenge_expires';
+const ACCOUNT_SETUP = 'dbi_account_setup';
 
 const base = {
   httpOnly: true,
@@ -27,7 +28,19 @@ export async function storeTokens(tokens: Tokens) {
 
 export async function clearSession() {
   const jar = await cookies();
-  for (const name of [ACCESS, REFRESH, CHALLENGE, CHALLENGE_EMAIL, CHALLENGE_EXPIRES]) jar.delete(name);
+  for (const name of [ACCESS, REFRESH, CHALLENGE, CHALLENGE_EMAIL, CHALLENGE_EXPIRES, ACCOUNT_SETUP]) jar.delete(name);
+}
+
+export async function storeAccountSetupToken(token: string) {
+  (await cookies()).set(ACCOUNT_SETUP, token, { ...base, maxAge: 60 * 60 * 24 });
+}
+
+export async function readAccountSetupToken() {
+  return (await cookies()).get(ACCOUNT_SETUP)?.value;
+}
+
+export async function clearAccountSetupToken() {
+  (await cookies()).delete(ACCOUNT_SETUP);
 }
 
 export async function forgetRefreshToken() {

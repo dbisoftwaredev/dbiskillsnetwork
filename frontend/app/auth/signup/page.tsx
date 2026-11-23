@@ -1,18 +1,22 @@
 import type { Metadata } from 'next';
 import { AuthShell } from '../../../components/shells';
-import { Heading } from '../../../components/ui';
+import { Alert, Heading } from '../../../components/ui';
+import { DEMO_ENABLED } from '../../../lib/demo';
+import { noticeFor } from '../../../lib/rules';
 import { SignUpForm } from '../forms';
 
 export const metadata: Metadata = { title: 'Create your account · DBI Skills Network' };
 
-export default async function SignUpPage({ searchParams }: { searchParams: Promise<{ type?: string }> }) {
-  const organization = (await searchParams).type === 'organization';
+export default async function SignUpPage({ searchParams }: { searchParams: Promise<{ notice?: string }> }) {
+  const notice = noticeFor((await searchParams).notice);
   return (
-    <AuthShell panel={organization ? 'organization' : 'talent'} top={<>Have an account? <a href="/auth/login">Sign in</a></>}>
-      <Heading eyebrow="Get started · Free" title="Join the" accent="network.">
-        {organization ? 'Set up access for your organization. You’ll add workspace details next.' : 'Join Africa’s digital talent network. It’s free and takes a couple of minutes.'}
+    <AuthShell panel="talent" top={<>Have an account? <a href="/auth/login">Sign in</a></>}>
+      <Heading title="Create your" accent="free account.">
+        Start with the basics. After confirming your email, choose whether you’re joining as an individual or for an organization.
       </Heading>
-      <SignUpForm initialType={organization ? 'ORGANIZATION_REPRESENTATIVE' : 'TALENT'} />
+      {notice ? <Alert tone="info">{notice}</Alert> : null}
+      {DEMO_ENABLED ? <Alert tone="info">Local demo: no confirmation email is needed. Choose how you’ll use your account next.</Alert> : null}
+      <SignUpForm />
     </AuthShell>
   );
 }

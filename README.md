@@ -33,13 +33,14 @@ Only `backend/.env` is needed:
 | `APP_ORIGIN` | Public web app origin used in email verification and reset links | Defaults to `http://localhost:3000` |
 | `NODE_ENV` | Runtime environment | Set to `production` in deployments |
 | `AUTH_ACCESS_TOKEN_SECRET` | HMAC key for access JWTs and email OTP validation (minimum 32 bytes) | For sign-in and MFA |
+| `GOOGLE_CLIENT_ID` | Google Identity Services audience used by the API to verify Google credentials | Optional; enables Google sign-in |
 | `BREVO_API_KEY` | Brevo transactional email API key | For verification, reset, and MFA emails |
 | `BREVO_FROM_EMAIL` | Verified sender address in Brevo | For verification, reset, and MFA emails |
 | `BREVO_FROM_NAME` | Email sender display name | Defaults to `DBI Skills Network` |
 | `TERMS_VERSION`, `PRIVACY_VERSION` | Version identifiers written to the consent ledger | Defaults to `v1` |
 | `SWAGGER_ENABLED` | Override the docs visibility default | Defaults on outside production; off in production |
 
-No frontend environment variables are needed. `/api/*` requests are proxied to the local API using [Next.js rewrites](https://nextjs.org/docs/app/api-reference/config/next-config-js/rewrites). Ports and ordinary defaults live in code. Never commit real `.env` files.
+No frontend `.env` file is needed. To enable Google sign-in, set the same public client ID as `GOOGLE_CLIENT_ID` in the backend and `NEXT_PUBLIC_GOOGLE_CLIENT_ID` in the frontend hosting environment. `/api/*` requests are proxied to the API using [Next.js rewrites](https://nextjs.org/docs/app/api-reference/config/next-config-js/rewrites). Ports and ordinary defaults live in code. Never commit real `.env` files.
 
 Editable business rules belong in database-backed settings when those features are built. Redis, email, payments, AI and external storage integrations are intentionally deferred until needed.
 

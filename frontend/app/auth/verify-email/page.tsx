@@ -12,7 +12,7 @@ export default async function VerifyEmailPage({ searchParams }: { searchParams: 
     <AuthShell panel="talent">
       {token ? (
         <>
-          <Heading eyebrow="One last step" title="Confirm your" accent="email.">Confirm this address to activate your account.</Heading>
+          <Heading title="Confirm your" accent="email.">Confirm this address to activate your account.</Heading>
           <VerifyEmailForm token={token} />
         </>
       ) : (

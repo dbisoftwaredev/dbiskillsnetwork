@@ -129,10 +129,14 @@ export const VERIFICATION_LABELS = {
 
 /** Sign-in page notices, keyed by a short code so the query string can't inject text. */
 export const NOTICES = {
-  verified: 'Your email is confirmed. Sign in to continue.',
+  verified: 'Your email is confirmed. Choose how you’ll use your account to continue.',
   reset: 'Your password has been changed. Sign in with your new password.',
   'signed-out': 'You’ve signed out.',
   'mfa-on': 'Email codes are on. Next time you sign in, we’ll email you a code.',
+  'setup-expired': 'Your account setup link expired. Sign in to request a new one.',
+  'consent-required': 'Accept the Terms of Use and Privacy Notice to create your account.',
+  'google-signin-failed': 'Google sign-in didn’t complete. Try again or use your email and password.',
+  'google-signup-failed': 'Google sign-up didn’t complete. Try again or create an account with your email.',
 } as const;
 export function noticeFor(code: unknown): string | null {
   return typeof code === 'string' && code in NOTICES ? NOTICES[code as keyof typeof NOTICES] : null;
