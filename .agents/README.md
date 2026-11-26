@@ -43,6 +43,9 @@ All agent workflows must maintain persistent serial tracking:
 2. **Deterministic UI Testing**:
    - After implementing or adjusting frontend components, run clear automated component and snapshot/interaction tests.
    - Verify responsive breakpoints (mobile-first for talent workflows, desktop-optimized for enterprise/government dashboards).
+3. **Standard Fetch / AJAX / XHR Transport (No Next.js Server Actions)**:
+   - Frontend agents (Kate) must **never** use Next.js Server Actions (`'use server'`, `useActionState`, `<form action={fn}>`) for form submissions or API calls.
+   - All forms and mutations must use `<form onSubmit={...}>` with standard browser `fetch('/api/v1/...', { method, headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(...) })` so browser DevTools Network tab always displays clean JSON payloads, explicit `/api/v1/*` URLs, and true HTTP status codes.
 
 ---
 
