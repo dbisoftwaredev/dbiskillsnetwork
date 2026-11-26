@@ -48,7 +48,7 @@ All operational rules, serial logs, model handoff guides, and numbered implement
   3. **Use Swagger (`/api/docs-json`) as the single contract** between Backend and Frontend.
 - **Jed (Full-Stack / Backend) vs. Kate (Frontend) Division of Labor**:
   - **Jed (Full-Stack / Backend)**: Owns `/backend` NestJS modules, Drizzle schemas & migrations (`backend/src/schema.ts`), database seeds, Swagger contract publishing, and full-stack integration/deployment.
-  - **Kate (Frontend)**: Works strictly inside `/frontend` (App Router pages & components) against existing endpoints documented in `/api/docs-json` via the same-origin `/api/*` proxy, without modifying backend schemas or introducing a frontend `.env`.
+  - **Kate (Frontend)**: Works strictly inside `/frontend` (App Router pages & components) against existing endpoints documented in `/api/docs-json` via the same-origin `/api/*` proxy using standard browser `fetch()` (AJAX/XHR) with `application/json` payloads (never Next.js Server Actions), without modifying backend schemas or introducing a frontend `.env`.
 - After the **30 November 2026 Pilot** ships and passes validation on `dev`, execution proceeds sequentially through Track B (`PLAN-0004` through `PLAN-0007`).
 
 ---
@@ -133,6 +133,11 @@ your-feature-branch  ──►  dev  ──►  production
 3. **Lean Environment Configuration**:
    - Only `backend/.env` is used (copied from `backend/.env.example`).
    - Do **not** introduce a frontend `.env` file; all browser `/api/*` requests proxy to the NestJS backend (`127.0.0.1:3001`) via Next.js rewrites in `frontend/next.config.mjs`.
+4. **Frontend API Transport Mandate (Standard `fetch` / AJAX / XHR — No Server Actions)**:
+   - **Never use Next.js Server Actions** (`'use server'`, `useActionState`, or `<form action={serverAction}>`) for form submissions, mutations, or backend API requests. Server Actions obscure endpoints behind React Flight `multipart/form-data` payloads (`_1_$ACTION_REF_*`) and always return HTTP `200 OK` on the page URL, hiding real API paths and status codes in browser DevTools.
+   - **Always use standard client-side `fetch()` (AJAX / XHR)** inside `<form onSubmit={...}>` or event handlers, sending `application/json` requests directly to `/api/v1/*` (which Next.js proxies to the NestJS backend via `frontend/next.config.mjs`).
+   - Every request in the browser Network tab must show the real REST endpoint (`/api/v1/auth/signup`, `/api/v1/users/me`, etc.), a clean JSON request/response body, and the true HTTP status code (`200`, `201`, `202`, `400`, `401`, `409`, `429`).
+   - Where server-rendered pages require session cookies, sync tokens through a clean JSON Route Handler (e.g., `POST /session`, `DELETE /session`) or standard `Authorization: Bearer <token>` headers — never via `'use server'` form actions.
 
 
 
