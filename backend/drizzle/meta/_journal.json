@@ -50,6 +50,13 @@
       "when": 1795393772030,
       "tag": "0006_parched_eternals",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795703024775,
+      "tag": "0007_wandering_praxagora",
+      "breakpoints": true
     }
   ]
 }

@@ -4,7 +4,11 @@ import { AuthModule } from './auth/auth.module';
 import { readConfig } from './config';
 import { DatabaseService } from './database';
 import { DatabaseModule } from './database.module';
+import { ExplorerModule } from './explorer/explorer.module';
 import { OrganizationModule } from './organizations/organization.module';
+import { PassportModule } from './passport/passport.module';
+import { StorageModule } from './storage/storage.module';
+import { TaxonomyModule } from './taxonomy/taxonomy.module';
 import { UsersModule } from './users/users.module';
 import { VerificationModule } from './verification/verification.module';
 
@@ -71,7 +75,17 @@ export class HealthController {
 }
 
 @Module({
-  imports: [DatabaseModule, AuthModule, OrganizationModule, UsersModule, VerificationModule],
+  imports: [
+    DatabaseModule,
+    AuthModule,
+    OrganizationModule,
+    UsersModule,
+    VerificationModule,
+    TaxonomyModule,
+    ExplorerModule,
+    StorageModule,
+    PassportModule,
+  ],
   controllers: [RootController, HealthController],
 })
 export class AppModule {}

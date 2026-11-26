@@ -9,7 +9,7 @@ export class SubmitVerificationDto {
   @MaxLength(200)
   documentName!: string;
 
-  @ApiProperty({ description: 'SHA-256 hex digest of the uploaded document (storage integration pending)', pattern: '^[a-f0-9]{64}$' })
+  @ApiProperty({ description: 'SHA-256 hex digest of the uploaded document (paired with Neon Object Storage uploads bucket or Cloudflare R2)', pattern: '^[a-f0-9]{64}$' })
   @Matches(/^[a-f0-9]{64}$/)
   documentSha256!: string;
 

@@ -288,7 +288,7 @@ To hit the **Monday, 23 Nov 2026** onboarding milestone and **Monday, 30 Nov 202
   - `/admin/verifications` — simple table calling `GET /api/v1/admin/organizations/verifications` with Approve / Reject + reason modal calling `PATCH /api/v1/admin/organizations/:organizationId/verification/decide`.
 
 ### What is TRIMMED to `PLAN-0007` (Agents MUST NOT build in Pilot)
-- No S3/MinIO object storage, presigned uploads, or virus-scanning pipelines (use existing SHA-256 + `documentName` metadata endpoint).
+- Full virus-scanning pipelines, inline PDF viewers, and image croppers remain deferred to `PLAN-0007`. Note: **Neon Object Storage** (`uploads` bucket declared in `neon.ts` and tested with `files-sdk/neon` using `AWS_*` env vars) is now provisioned as our S3-compatible bucket (with `files-sdk/r2` Cloudflare R2 available as a one-line adapter swap later); Pilot verification submissions continue to record `documentSha256` + `documentName` (`POST /api/v1/organizations/:organizationId/verification/submit`), ready to bind to presigned object keys when `StorageModule` is wired.
 - No avatar/logo image cropper or inline PDF viewer library.
 - No Redis queues or external SMS/WhatsApp provider SDKs (keep preference toggles in DB; keep email via Brevo + in-app only).
 

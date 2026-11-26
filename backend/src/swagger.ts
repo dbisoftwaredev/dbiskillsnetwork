@@ -7,7 +7,7 @@ export function setupSwagger(app: INestApplication, env: NodeJS.ProcessEnv = pro
 
   const options = new DocumentBuilder()
     .setTitle('DBI Skills Network API')
-    .setDescription('Versioned API for DBI Skills Network identity, talent, and organization services.')
+    .setDescription('Versioned API for DBI Skills Network identity, talent, passport, storage, and organization services.')
     .setVersion('1.0.0')
     .addBearerAuth()
     .build();

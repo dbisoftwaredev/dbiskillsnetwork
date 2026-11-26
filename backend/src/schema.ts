@@ -2,6 +2,7 @@ import {
   boolean,
   index,
   jsonb,
+  numeric,
   pgEnum,
   pgTable,
   smallint,
@@ -234,6 +235,7 @@ export const organizationVerificationSubmissions = pgTable('organization_verific
   submittedByUserId: uuid('submitted_by_user_id').references(() => users.id, { onDelete: 'set null' }),
   documentName: varchar('document_name', { length: 200 }).notNull(),
   documentSha256: varchar('document_sha256', { length: 64 }).notNull(),
+  objectKey: varchar('object_key', { length: 300 }),
   notes: varchar('notes', { length: 1000 }),
   decision: verificationDecisionEnum('decision').default('PENDING').notNull(),
   decidedByUserId: uuid('decided_by_user_id').references(() => users.id, { onDelete: 'set null' }),
@@ -247,7 +249,142 @@ export const organizationVerificationSubmissions = pgTable('organization_verific
     .where(sql`${table.decision} = 'PENDING'`),
 ]);
 
+export const passportVisibilityEnum = pgEnum('passport_visibility', ['PUBLIC', 'EMPLOYERS_ONLY', 'PRIVATE']);
+export const skillEvidenceTierEnum = pgEnum('skill_evidence_tier', ['DECLARED', 'DEMONSTRATED', 'VERIFIED']);
+export const skillConfidenceEnum = pgEnum('skill_confidence', ['VERIFIED', 'PROVISIONAL', 'INSUFFICIENT_EVIDENCE']);
+export const skillVerificationSourceEnum = pgEnum('skill_verification_source', [
+  'NONE',
+  'SKILLVERIFY_ASSESSMENT',
+  'RPL_CERTIFICATION',
+]);
+export const rplDecisionEnum = pgEnum('rpl_decision', ['PENDING', 'APPROVED', 'REJECTED']);
+
+export const taxonomyDomains = pgTable('taxonomy_domains', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  slug: varchar('slug', { length: 80 }).notNull(),
+  name: varchar('name', { length: 120 }).notNull(),
+  description: varchar('description', { length: 500 }).notNull(),
+  displayOrder: smallint('display_order').notNull(),
+  escoGroupCode: varchar('esco_group_code', { length: 32 }),
+  version: varchar('version', { length: 16 }).default('v1').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  uniqueIndex('taxonomy_domains_slug_unique').on(table.slug),
+]);
+
+export const skills = pgTable('skills', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  domainId: uuid('domain_id').notNull().references(() => taxonomyDomains.id, { onDelete: 'cascade' }),
+  slug: varchar('slug', { length: 100 }).notNull(),
+  name: varchar('name', { length: 120 }).notNull(),
+  description: varchar('description', { length: 500 }).notNull(),
+  escoUri: varchar('esco_uri', { length: 200 }),
+  safetyCritical: boolean('safety_critical').default(false).notNull(),
+  requiredEvidence: varchar('required_evidence', { length: 200 }).notNull(),
+  version: varchar('version', { length: 16 }).default('v1').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  uniqueIndex('skills_slug_unique').on(table.slug),
+  index('skills_domain_idx').on(table.domainId),
+]);
+
+export const roleBenchmarks = pgTable('role_benchmarks', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  domainId: uuid('domain_id').notNull().references(() => taxonomyDomains.id, { onDelete: 'cascade' }),
+  slug: varchar('slug', { length: 100 }).notNull(),
+  title: varchar('title', { length: 120 }).notNull(),
+  description: varchar('description', { length: 500 }).notNull(),
+  requiredSkillSlugs: jsonb('required_skill_slugs').$type<string[]>().notNull(),
+  version: varchar('version', { length: 16 }).default('v1').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  uniqueIndex('role_benchmarks_slug_unique').on(table.slug),
+]);
+
+export const explorerSnapshots = pgTable('explorer_snapshots', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tokenHash: varchar('token_hash', { length: 64 }).notNull(),
+  roleSlug: varchar('role_slug', { length: 100 }).notNull(),
+  readinessBand: varchar('readiness_band', { length: 40 }).notNull(),
+  readinessScore: smallint('readiness_score').notNull(),
+  matchedSkillSlugs: jsonb('matched_skill_slugs').$type<string[]>().notNull(),
+  missingSkillSlugs: jsonb('missing_skill_slugs').$type<string[]>().notNull(),
+  answers: jsonb('answers').$type<Record<string, unknown>>().notNull(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  redeemedAt: timestamp('redeemed_at', { withTimezone: true }),
+  redeemedByUserId: uuid('redeemed_by_user_id').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  uniqueIndex('explorer_snapshots_token_hash_unique').on(table.tokenHash),
+  index('explorer_snapshots_expires_idx').on(table.expiresAt),
+]);
+
+export const talentProfiles = pgTable('talent_profiles', {
+  userId: uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  handle: varchar('handle', { length: 64 }).notNull(),
+  headline: varchar('headline', { length: 160 }),
+  bio: varchar('bio', { length: 1000 }),
+  availabilityStatus: varchar('availability_status', { length: 40 }).default('OPEN_TO_OPPORTUNITIES').notNull(),
+  workPreferences: jsonb('work_preferences').$type<{ remote?: boolean; relocate?: boolean; contractTypes?: string[] }>(),
+  passportVisibility: passportVisibilityEnum('passport_visibility').default('PUBLIC').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  uniqueIndex('talent_profiles_handle_unique').on(table.handle),
+]);
+
+export const credentialWalletItems = pgTable('credential_wallet_items', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  title: varchar('title', { length: 160 }).notNull(),
+  qualificationCode: varchar('qualification_code', { length: 40 }),
+  issuer: varchar('issuer', { length: 120 }).notNull(),
+  documentName: varchar('document_name', { length: 200 }).notNull(),
+  documentSha256: varchar('document_sha256', { length: 64 }).notNull(),
+  objectKey: varchar('object_key', { length: 300 }),
+  issueDate: varchar('issue_date', { length: 20 }),
+  expiryDate: varchar('expiry_date', { length: 20 }),
+  mappedSkillIds: jsonb('mapped_skill_ids').$type<string[]>().notNull(),
+  rplRequested: boolean('rpl_requested').default(true).notNull(),
+  rplStatus: rplDecisionEnum('rpl_status').default('PENDING').notNull(),
+  decidedByUserId: uuid('decided_by_user_id').references(() => users.id, { onDelete: 'set null' }),
+  decisionReason: varchar('decision_reason', { length: 1000 }),
+  decidedAt: timestamp('decided_at', { withTimezone: true }),
+  notes: varchar('notes', { length: 1000 }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  index('credential_wallet_items_user_idx').on(table.userId, table.createdAt),
+  index('credential_wallet_items_rpl_status_idx').on(table.rplStatus, table.createdAt),
+]);
+
+export const passportSkills = pgTable('passport_skills', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  skillId: uuid('skill_id').notNull().references(() => skills.id, { onDelete: 'cascade' }),
+  evidenceTier: skillEvidenceTierEnum('evidence_tier').default('DECLARED').notNull(),
+  confidence: skillConfidenceEnum('confidence').default('INSUFFICIENT_EVIDENCE').notNull(),
+  proficiency: numeric('proficiency', { precision: 2, scale: 1 }),
+  selfRating: smallint('self_rating'),
+  verificationSource: skillVerificationSourceEnum('verification_source').default('NONE').notNull(),
+  verifiedLabel: varchar('verified_label', { length: 120 }),
+  verifiedCredentialId: uuid('verified_credential_id').references(() => credentialWalletItems.id, { onDelete: 'set null' }),
+  evidenceNote: varchar('evidence_note', { length: 500 }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  uniqueIndex('passport_skills_user_skill_unique').on(table.userId, table.skillId),
+  index('passport_skills_user_idx').on(table.userId),
+]);
+
 export const schema = {
+  taxonomyDomains,
+  skills,
+  roleBenchmarks,
+  explorerSnapshots,
+  talentProfiles,
+  credentialWalletItems,
+  passportSkills,
   organizationVerificationSubmissions,
   userProfiles,
   communicationPreferences,

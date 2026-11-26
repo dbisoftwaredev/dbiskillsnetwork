@@ -68,10 +68,27 @@ test('Swagger serves the versioned API contract outside production and base rout
       ['/api/v1/organizations/{organizationId}/verification/submit', 'post'],
       ['/api/v1/admin/organizations/verifications', 'get'],
       ['/api/v1/admin/organizations/{organizationId}/verification/decide', 'patch'],
+      ['/api/v1/talent/profile/me', 'get'],
+      ['/api/v1/talent/profile/me', 'patch'],
+      ['/api/v1/passport/skills', 'post'],
+      ['/api/v1/passport/skills/{id}', 'delete'],
+      ['/api/v1/passport/me', 'get'],
+      ['/api/v1/passport/visibility', 'patch'],
+      ['/api/v1/passport/credentials', 'post'],
+      ['/api/v1/passport/credentials', 'get'],
+      ['/api/v1/admin/passport/rpl-verifications', 'get'],
+      ['/api/v1/admin/passport/rpl-verifications/{credentialId}/decide', 'patch'],
+      ['/api/v1/storage/presign-upload', 'post'],
+      ['/api/v1/storage/signed-download', 'get'],
     ];
     for (const [path, method] of protectedOps) {
       assert.deepEqual(document.paths[path]?.[method]?.security, [{ bearer: [] }], `Missing bearer security on ${method.toUpperCase()} ${path}`);
     }
+
+    assert.ok(document.paths['/api/v1/public/career-readiness-explorer']?.post);
+    assert.ok(document.paths['/api/v1/taxonomy/domains']?.get);
+    assert.ok(document.paths['/api/v1/taxonomy/skills']?.get);
+    assert.ok(document.paths['/api/v1/passport/public/{handle}']?.get);
 
     assert.equal(document.paths['/api/v1/auth/mfa/challenge']?.post?.summary, 'Complete sign-in using an emailed MFA code');
     assert.equal(document.paths['/api/v1/auth/forgot-password']?.post?.summary, 'Request a password reset email');
